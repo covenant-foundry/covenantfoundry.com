@@ -1,0 +1,27 @@
+---
+import IconSigil from "./IconSigil.astro";
+import StatusBadge from "./StatusBadge.astro";
+
+interface Props {
+	title: string;
+	status: string;
+	stage: string;
+	description: string;
+	icon: "ledger" | "code" | "community" | "arrow" | "gear" | "cross" | "chart";
+	tone?: "building" | "live" | "paused";
+}
+
+const { title, status, stage, description, icon, tone = "building" } = Astro.props;
+---
+
+<article class="project-plate">
+	<IconSigil name={icon} />
+	<div>
+		<h3>{title}</h3>
+		<p>{description}</p>
+		<div class="plate-meta">
+			<StatusBadge status={status} tone={tone} />
+			<span>{stage}</span>
+		</div>
+	</div>
+</article>

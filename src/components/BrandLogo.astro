@@ -1,0 +1,10 @@
+---
+interface Props {
+	class?: string;
+	alt?: string;
+}
+
+const { class: className = "", alt = "Covenant Foundry" } = Astro.props;
+---
+
+<img class={className} src="/img/logo.png" alt={alt} width="640" height="640" decoding="async" />

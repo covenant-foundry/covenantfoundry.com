@@ -1,0 +1,50 @@
+---
+interface Props {
+	name: "ledger" | "code" | "community" | "arrow" | "gear" | "cross" | "chart";
+	label?: string;
+}
+
+const { name, label } = Astro.props;
+---
+
+<svg class="icon-sigil" viewBox="0 0 64 64" role={label ? "img" : "presentation"} aria-label={label}>
+	<path class="sigil-frame" d="M32 4 56 18v28L32 60 8 46V18z" />
+	{name === "ledger" && (
+		<g>
+			<rect x="21" y="17" width="22" height="30" rx="2" />
+			<path d="M26 24h12M26 31h12M26 38h9" />
+		</g>
+	)}
+	{name === "code" && (
+		<g>
+			<path d="m26 22-8 10 8 10M38 22l8 10-8 10M35 18l-6 28" />
+		</g>
+	)}
+	{name === "community" && (
+		<g>
+			<circle cx="32" cy="23" r="6" />
+			<path d="M21 45c2-8 20-8 22 0M18 29c-5 3-6 8-5 13M46 29c5 3 6 8 5 13" />
+		</g>
+	)}
+	{name === "arrow" && (
+		<g>
+			<path d="M19 42 43 18M30 18h13v13" />
+		</g>
+	)}
+	{name === "gear" && (
+		<g>
+			<circle cx="32" cy="32" r="9" />
+			<path d="M32 13v8M32 43v8M13 32h8M43 32h8M19 19l6 6M39 39l6 6M45 19l-6 6M25 39l-6 6" />
+		</g>
+	)}
+	{name === "cross" && (
+		<g>
+			<path d="M29 16h6v13h13v6H35v13h-6V35H16v-6h13z" />
+		</g>
+	)}
+	{name === "chart" && (
+		<g>
+			<path d="M20 44V32M30 44V24M40 44V18M18 44h28" />
+		</g>
+	)}
+</svg>

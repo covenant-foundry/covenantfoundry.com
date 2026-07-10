@@ -1,0 +1,703 @@
+---
+interface Props {
+	id?: string;
+	class?: string;
+	seed?: string;
+	minHeight?: string;
+	aspectRatio?: string;
+	ariaLabel?: string;
+}
+
+const {
+	id,
+	class: className = "",
+	seed = "foundry-cathedral",
+	minHeight = "clamp(27rem, 42vw, 40rem)",
+	aspectRatio = "3 / 1",
+	ariaLabel = "Cathedral frame",
+} = Astro.props;
+
+const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${aspectRatio};`;
+---
+
+<section
+	id={id}
+	class:list={["cathedral-frame", className]}
+	data-cathedral-frame
+	data-seed={seed}
+	style={style}
+	aria-label={ariaLabel}
+>
+	<svg class="cathedral-frame__art" aria-hidden="true" focusable="false"></svg>
+	<div class="cathedral-frame__logo">
+		<slot name="logo" />
+	</div>
+	<div class="cathedral-frame__content">
+		<slot />
+	</div>
+</section>
+
+<script>
+	const PHI = (1 + Math.sqrt(5)) / 2;
+	const SVG_NS = "http://www.w3.org/2000/svg";
+	const SQRT2 = Math.SQRT2;
+	const LINE_WIDTH = {
+		normal: 1.5,
+		thick: 3,
+		compactThick: 2,
+		compactBreakpoint: 780,
+	};
+
+	function hashString(input) {
+		let hash = 2166136261;
+		for (let index = 0; index < input.length; index += 1) {
+			hash ^= input.charCodeAt(index);
+			hash = Math.imul(hash, 16777619);
+		}
+		return hash >>> 0;
+	}
+
+	function createRandom(seed) {
+		let value = hashString(seed);
+		return () => {
+			value += 0x6d2b79f5;
+			let next = value;
+			next = Math.imul(next ^ (next >>> 15), next | 1);
+			next ^= next + Math.imul(next ^ (next >>> 7), next | 61);
+			return ((next ^ (next >>> 14)) >>> 0) / 4294967296;
+		};
+	}
+
+	function range(random, min, max) {
+		return min + (max - min) * random();
+	}
+
+	function pick(random, values) {
+		return values[Math.floor(random() * values.length)];
+	}
+
+	function snap(value, grid) {
+		return Math.round(value / grid) * grid;
+	}
+
+	function clamp(value, min, max) {
+		return Math.min(max, Math.max(min, value));
+	}
+
+	function pathFromPoints(points) {
+		return points
+			.map(([x, y], index) => `${index === 0 ? "M" : "L"} ${x} ${y}`)
+			.join(" ");
+	}
+
+	function mirrored(content, width) {
+		return `${content}<g transform="translate(${width} 0) scale(-1 1)">${content}</g>`;
+	}
+
+	function strokePath(d, className = "brass", width = LINE_WIDTH.normal, extra = "") {
+		return `<path class="${className}" d="${d}" stroke-width="${width}" ${extra}/>`;
+	}
+
+	function terminal(x, y, radius = 3, className = "brass", strokeWidth = LINE_WIDTH.normal) {
+		const fillRadius = Math.max(1.2, radius / 2.3);
+		return `<circle class="${className}" cx="${x}" cy="${y}" r="${radius}" stroke-width="${strokeWidth}"/><circle class="${className}-fill" cx="${x}" cy="${y}" r="${fillRadius}"/>`;
+	}
+
+	function buildCathedral(width, height, seed) {
+		const lineWidth = {
+			normal: LINE_WIDTH.normal,
+			thick: width <= LINE_WIDTH.compactBreakpoint ? LINE_WIDTH.compactThick : LINE_WIDTH.thick,
+		};
+		const centerX = width / 2;
+		const aspect = width / height;
+		const isVertical = aspect < 1;
+		const isSlim = aspect > 3.6;
+		const random = createRandom(`${seed}:${Math.round(width)}x${Math.round(height)}`);
+		const forestRandom = createRandom(`${seed}:side-forest`);
+		const shortSide = Math.min(width, height);
+		const frameInset = clamp(shortSide * 0.085, 18, 72);
+		const grid = pick(random, isSlim ? [4, 6, 8] : [8, 10, 12]);
+		const uid = `cathedral-${hashString(seed + width + height).toString(36)}`;
+		const frameBottomY = height - frameInset;
+		const frameWidth = width - frameInset * 2;
+		const frameHeight = height - frameInset * 2;
+		const medallionRadius = clamp(shortSide * 0.035, 5, 22);
+		const railY = frameBottomY - medallionRadius;
+		const contentHeight = frameHeight / PHI;
+		const contentWidth = contentHeight * (16 / 9);
+		const contentX = centerX - contentWidth / 2;
+		const contentY = railY - contentHeight;
+		const circleDiameter = contentWidth / PHI;
+		const circleRadius = circleDiameter / 2;
+		const circleAboveContent = (1 - 1 / PHI) * circleDiameter;
+		const circleCenterY = contentY - circleAboveContent + circleRadius;
+		const circleDyAtGuide = contentY - circleCenterY;
+		const circleHalfChord = Math.sqrt(Math.max(0, circleRadius ** 2 - circleDyAtGuide ** 2));
+		const circleArcLeftX = centerX - circleHalfChord;
+		const circleArcRightX = centerX + circleHalfChord;
+		const circleTopY = circleCenterY - circleRadius;
+		const logoPlacementDiameter = circleDiameter / PHI;
+		const logoGuideDiameter = logoPlacementDiameter / 2;
+		const cornerGuideDotCount = 6;
+		const cornerGuideSize = logoGuideDiameter;
+		const cornerGuideSpacing = cornerGuideSize / (cornerGuideDotCount - 1);
+		const corner = clamp(shortSide * 0.065, 14, cornerGuideSpacing * 2);
+		const logoGuideRadius = logoGuideDiameter / 2;
+		const logoGuideCenterY = contentY - logoPlacementDiameter / PHI + logoPlacementDiameter / 2;
+		const logoGuideTopY = logoGuideCenterY - logoGuideRadius;
+		const recessedLineY = logoGuideTopY;
+		const recessedArcEndY = (logoGuideTopY + logoGuideCenterY) / 2;
+		const recessedReferenceLineY = (circleTopY + logoGuideTopY) / 2;
+		const recessedReferenceArcRun = (recessedArcEndY - recessedReferenceLineY) * PHI;
+		const recessedShapeWidth = contentWidth + recessedReferenceArcRun * 2;
+		const recessedLineWidth = recessedShapeWidth * (3 / 5);
+		const recessedArcRun = recessedLineWidth / 6;
+		const recessedLineStartX = centerX - recessedLineWidth / 2;
+		const recessedLineEndX = centerX + recessedLineWidth / 2;
+		const recessedArcDrop = recessedArcEndY - recessedLineY;
+		const recessedStepCount = 2;
+		const recessedStepSize = recessedArcDrop / recessedStepCount;
+		const recessedLeadRun = recessedArcRun - recessedArcDrop;
+		const recessedOuterArcEndX = recessedLineStartX - recessedArcRun;
+		const recessedOuterStepStartX = recessedOuterArcEndX - recessedLeadRun;
+		const recessedOuterWallX = recessedOuterStepStartX - recessedStepSize * recessedStepCount;
+		const foregroundWallBottomY = railY - medallionRadius;
+		const railEndOffset = grid * (frameWidth / frameHeight);
+		const foregroundRailEndX = frameInset + corner + railEndOffset;
+		const foregroundWallLineEndX = frameInset;
+		const recessedInsetStep = recessedArcRun / 6;
+		const framePaths = [];
+		const centerPaths = [];
+		const centerAccent = [];
+			const recessedLayer = [];
+			const sideForestLeft = [];
+			const sideForestCapsLeft = [];
+			const sideForestMaskCutsLeft = [];
+			const stepLeft = [];
+			const traceLeft = [];
+			const tracePadsLeft = [];
+			const tracePadMaskCutsLeft = [];
+			const cornerGuides = [];
+			const centerMarks = [];
+		const foregroundStrokeWidth = LINE_WIDTH.normal;
+		const foregroundTopMaskStrokeWidth = foregroundStrokeWidth + Math.max(2, grid * 0.25);
+		const foregroundTopMaskPath = `M ${circleArcLeftX} ${contentY} A ${circleRadius} ${circleRadius} 0 0 1 ${circleArcRightX} ${contentY} Z`;
+		const framePathD = `M ${frameInset + corner} ${frameInset} H ${width - frameInset - corner} L ${width - frameInset} ${frameInset + corner} V ${height - frameInset - corner} L ${width - frameInset - corner} ${height - frameInset} H ${frameInset + corner} L ${frameInset} ${height - frameInset - corner} V ${frameInset + corner} Z`;
+		const contentDisplayWidth = Math.min(contentWidth, frameWidth);
+		const contentDisplayX = centerX - contentDisplayWidth / 2;
+
+		framePaths.push(
+			strokePath(framePathD),
+		);
+		centerPaths.push(
+			strokePath(
+				`M ${circleArcLeftX} ${contentY} A ${circleRadius} ${circleRadius} 0 0 1 ${circleArcRightX} ${contentY}`,
+			),
+		);
+		const cornerDecorStrokeWidth = lineWidth.thick;
+		const sideForestCapRadius = cornerGuideSpacing / (PHI * 2);
+		const shouldShowLeftCornerDot = (column, row) =>
+			!(column === 0 && row === 0)
+			&& !(column === 2 && row === 3)
+			&& !(column === 3 && row === 2)
+			&& column + row <= 5;
+
+		function cornerCircuitGuide(transform) {
+			const visibleNodes = [];
+			const nodeX = (column) => column * cornerGuideSpacing;
+			const nodeY = (row) => row * cornerGuideSpacing;
+			const cornerCurveRadius = Math.min(cornerGuideSpacing * 0.24, cornerGuideSpacing / 3);
+			for (let row = 0; row < cornerGuideDotCount; row += 1) {
+				for (let column = 0; column < cornerGuideDotCount; column += 1) {
+					if (!shouldShowLeftCornerDot(column, row)) continue;
+					visibleNodes.push({ column, row });
+				}
+			}
+			const nodeKey = ({ column, row }) => `${column},${row}`;
+			const nodeSet = new Set(visibleNodes.map((node) => `${node.column},${node.row}`));
+			const edgeMap = new Map();
+			const cornerGraph = new Map(visibleNodes.map((node) => [nodeKey(node), []]));
+
+			function addCornerEdge(from, to) {
+				const edgeKey = [nodeKey(from), nodeKey(to)].sort().join("|");
+				edgeMap.set(edgeKey, [from, to]);
+				cornerGraph.get(nodeKey(from))?.push(to);
+				cornerGraph.get(nodeKey(to))?.push(from);
+			}
+
+			for (const { column, row } of visibleNodes) {
+				if (nodeSet.has(`${column + 1},${row}`)) {
+					addCornerEdge({ column, row }, { column: column + 1, row });
+				}
+				if (nodeSet.has(`${column},${row + 1}`)) {
+					addCornerEdge({ column, row }, { column, row: row + 1 });
+				}
+			}
+
+			function cornerEdgeKey(from, to) {
+				return [nodeKey(from), nodeKey(to)].sort().join("|");
+			}
+
+			function remainingNeighbors(node, remainingEdges) {
+				return (cornerGraph.get(nodeKey(node)) ?? []).filter((neighbor) =>
+					remainingEdges.has(cornerEdgeKey(node, neighbor)),
+				);
+			}
+
+			function sameDirection(previous, current, next) {
+				return (current.column - previous.column) === (next.column - current.column)
+					&& (current.row - previous.row) === (next.row - current.row);
+			}
+
+			function pickNextCornerNode(previous, current, remainingEdges) {
+				const candidates = remainingNeighbors(current, remainingEdges);
+				if (candidates.length === 0) return undefined;
+				return candidates.sort((left, right) => {
+					const leftStraight = sameDirection(previous, current, left) ? 1 : 0;
+					const rightStraight = sameDirection(previous, current, right) ? 1 : 0;
+					if (leftStraight !== rightStraight) return rightStraight - leftStraight;
+					if (left.row !== right.row) return left.row - right.row;
+					return right.column - left.column;
+				})[0];
+			}
+
+			function nextCornerStart(remainingEdges) {
+				for (const node of visibleNodes) {
+					const degree = remainingNeighbors(node, remainingEdges).length;
+					if (degree === 1 || degree > 2) return node;
+				}
+				const firstEdge = remainingEdges.values().next().value;
+				return firstEdge ? edgeMap.get(firstEdge)?.[0] : undefined;
+			}
+
+			function consumeCornerRoutes() {
+				const remainingEdges = new Set(edgeMap.keys());
+				const routes = [];
+
+				while (remainingEdges.size > 0) {
+					const start = nextCornerStart(remainingEdges);
+					if (!start) break;
+					const firstNeighbor = remainingNeighbors(start, remainingEdges)[0];
+					if (!firstNeighbor) break;
+					const route = [start, firstNeighbor];
+					remainingEdges.delete(cornerEdgeKey(start, firstNeighbor));
+
+					while (route.length > 1) {
+						const current = route[route.length - 1];
+						const previous = route[route.length - 2];
+						const next = pickNextCornerNode(previous, current, remainingEdges);
+						if (!next) break;
+						remainingEdges.delete(cornerEdgeKey(current, next));
+						route.push(next);
+					}
+
+					routes.push(route);
+				}
+
+				return routes;
+			}
+
+			function roundedCornerPath(route) {
+				const points = route.map(({ column, row }) => ({ x: nodeX(column), y: nodeY(row) }));
+				if (points.length < 2) return "";
+				let d = `M ${points[0].x} ${points[0].y}`;
+
+				for (let index = 1; index < points.length - 1; index += 1) {
+					const previous = points[index - 1];
+					const current = points[index];
+					const next = points[index + 1];
+					const incomingLength = Math.hypot(current.x - previous.x, current.y - previous.y);
+					const outgoingLength = Math.hypot(next.x - current.x, next.y - current.y);
+					const incomingX = (previous.x - current.x) / incomingLength;
+					const incomingY = (previous.y - current.y) / incomingLength;
+					const outgoingX = (next.x - current.x) / outgoingLength;
+					const outgoingY = (next.y - current.y) / outgoingLength;
+					const isTurn = Math.abs(incomingX + outgoingX) > 0.001 || Math.abs(incomingY + outgoingY) > 0.001;
+
+					if (!isTurn) continue;
+
+					const radius = Math.min(cornerCurveRadius, incomingLength / 2, outgoingLength / 2);
+					const curveStart = {
+						x: current.x + incomingX * radius,
+						y: current.y + incomingY * radius,
+					};
+					const curveEnd = {
+						x: current.x + outgoingX * radius,
+						y: current.y + outgoingY * radius,
+					};
+					d += ` L ${curveStart.x} ${curveStart.y} Q ${current.x} ${current.y} ${curveEnd.x} ${curveEnd.y}`;
+				}
+
+				const last = points[points.length - 1];
+				return `${d} L ${last.x} ${last.y}`;
+			}
+
+			const traceSegments = consumeCornerRoutes()
+				.map((route) => roundedCornerPath(route))
+				.filter(Boolean);
+			const terminals = [
+				{ column: cornerGuideDotCount - 1, row: 0 },
+				{ column: 0, row: cornerGuideDotCount - 1 },
+			].filter((node) => nodeSet.has(`${node.column},${node.row}`));
+
+			return `<g class="corner-circuit-guide" transform="${transform}">
+				<path class="corner-trace" d="${traceSegments.join(" ")}" stroke-width="${cornerDecorStrokeWidth}"/>
+				${terminals
+					.map((node) => `<circle class="corner-terminal" cx="${nodeX(node.column)}" cy="${nodeY(node.row)}" r="${sideForestCapRadius}" stroke-width="${cornerDecorStrokeWidth}"/>`)
+					.join("")}
+			</g>`;
+		}
+
+		const cornerGuideX = frameInset + cornerGuideSpacing;
+		const cornerGuideY = frameInset + cornerGuideSpacing;
+		const cornerGuideRightX = width - frameInset - cornerGuideSpacing - cornerGuideSize;
+		if (cornerGuideSize > 20) {
+			cornerGuides.push(
+				cornerCircuitGuide(`translate(${cornerGuideX} ${cornerGuideY})`),
+				cornerCircuitGuide(`translate(${cornerGuideRightX + cornerGuideSize} ${cornerGuideY}) scale(-1 1)`),
+			);
+		}
+
+		function addRecessedShape(inset, className) {
+			const lineY = recessedLineY + inset;
+			const lineStartX = recessedLineStartX + inset;
+			const lineEndX = recessedLineEndX - inset;
+			const arcEndX = lineStartX - recessedArcRun;
+			const arcEndY = lineY + recessedArcDrop;
+			const stepStartX = arcEndX - recessedLeadRun;
+			const stairPath = Array.from({ length: recessedStepCount }, (_, index) => {
+				const step = index + 1;
+				const x = stepStartX - recessedStepSize * step;
+				const y = arcEndY + recessedStepSize * step;
+				return `V ${y} H ${x}`;
+			}).join(" ");
+			recessedLayer.push(strokePath(`M ${lineStartX} ${lineY} H ${lineEndX}`, className));
+			recessedLayer.push(
+				mirrored(
+					strokePath(
+						`M ${lineStartX} ${lineY} A ${circleRadius} ${circleRadius} 0 0 0 ${arcEndX} ${arcEndY} H ${stepStartX} ${stairPath} V ${foregroundWallBottomY}`,
+						className,
+					),
+					width,
+				),
+			);
+		}
+
+		addRecessedShape(recessedInsetStep * 2, "brass-dim");
+		addRecessedShape(recessedInsetStep, "brass-dim");
+		addRecessedShape(0, "brass");
+
+		const sideForestLineCount = 12;
+		const sideForestWidth = contentWidth / 2;
+		const sideForestAreaStartX = foregroundRailEndX;
+		const sideForestAreaEndX = sideForestAreaStartX + sideForestWidth;
+		const sideForestFits = sideForestAreaEndX <= recessedOuterWallX;
+		const sideForestSpacing = sideForestFits
+			? sideForestWidth / (sideForestLineCount - 1)
+			: 0;
+		const sideForestBaseY = foregroundWallBottomY;
+		const sideForestGrid = Math.max(2, grid / 2);
+		const sideForestMinHeight = Math.max(grid * 5, frameHeight * 0.14);
+		const sideForestMaxHeight = Math.max(
+			sideForestMinHeight + grid * 3,
+			Math.min(frameHeight * 0.72, sideForestBaseY - (frameInset + corner * 0.9)),
+		);
+		const sideForestHeights = Array.from({ length: sideForestLineCount }, () =>
+			snap(range(forestRandom, sideForestMinHeight, sideForestMaxHeight), sideForestGrid),
+		);
+		for (let index = 0; sideForestFits && index < sideForestLineCount; index += 1) {
+			const x = sideForestAreaStartX + sideForestSpacing * index;
+			const heightValue = sideForestHeights[index];
+			const y = sideForestBaseY - heightValue;
+			const isPeak = index > 0
+				&& index < sideForestLineCount - 1
+				&& heightValue > sideForestHeights[index - 1]
+				&& heightValue > sideForestHeights[index + 1];
+			const className = isPeak ? "orange" : "brass";
+			const forestCenterIndex = (sideForestLineCount - 1) / 2;
+			const forestCenterBand = sideForestLineCount % 2 === 0 ? 0.5 : 0;
+			const forestMaxDistance = Math.max(1, forestCenterIndex - forestCenterBand);
+			const forestDistance = Math.max(0, Math.abs(index - forestCenterIndex) - forestCenterBand);
+			const opacity = 1 - (forestDistance / forestMaxDistance) * 0.5;
+			sideForestLeft.push(
+				strokePath(
+					`M ${x} ${sideForestBaseY} V ${y}`,
+					className,
+					lineWidth.thick,
+					`opacity="${opacity.toFixed(3)}"`,
+				),
+			);
+			if (isPeak) {
+				const maskRadius = sideForestCapRadius + lineWidth.thick / 2;
+				sideForestMaskCutsLeft.push(`<circle cx="${x}" cy="${y}" r="${maskRadius}" fill="#000"/>`);
+				sideForestCapsLeft.push(
+					`<circle class="orange side-forest-cap" cx="${x}" cy="${y}" r="${sideForestCapRadius}" stroke-width="${lineWidth.thick}" stroke-opacity="${opacity.toFixed(3)}"/>`,
+				);
+			}
+		}
+
+		const shoulderStep = contentWidth / 48;
+		const foregroundShoulderPoints = [
+			[contentX, foregroundWallBottomY],
+			[contentX, contentY + shoulderStep * 4],
+			[contentX + shoulderStep, contentY + shoulderStep * 4],
+			[contentX + shoulderStep, contentY + shoulderStep * 3],
+			[contentX + shoulderStep * 2, contentY + shoulderStep * 3],
+			[contentX + shoulderStep * 2, contentY + shoulderStep * 2],
+			[contentX + shoulderStep * 3, contentY + shoulderStep * 2],
+			[contentX + shoulderStep * 3, contentY + shoulderStep],
+			[contentX + shoulderStep * 4, contentY + shoulderStep],
+			[contentX + shoulderStep * 4, contentY],
+			[circleArcLeftX, contentY],
+		];
+		stepLeft.push(strokePath(pathFromPoints(foregroundShoulderPoints)));
+		stepLeft.push(strokePath(`M ${contentX} ${foregroundWallBottomY} H ${foregroundWallLineEndX}`));
+		centerPaths.push(
+			strokePath(
+				`M ${frameInset + corner} ${railY} H ${centerX - medallionRadius * 4.2} L ${centerX - medallionRadius * 2.7} ${railY + medallionRadius} H ${centerX + medallionRadius * 2.7} L ${centerX + medallionRadius * 4.2} ${railY} H ${width - frameInset - corner}`,
+			),
+		);
+		centerMarks.push(terminal(centerX, railY + medallionRadius, medallionRadius));
+		centerAccent.push(
+			strokePath(
+				`M ${centerX} ${railY} V ${railY + medallionRadius * 2} M ${centerX - medallionRadius} ${railY + medallionRadius} H ${centerX + medallionRadius}`,
+				"orange",
+			),
+		);
+
+		const traceCount = 3;
+		const tracePadRadius = sideForestCapRadius;
+		const traceLineClearance = lineWidth.thick / 2 + 1;
+		const tracePadClearance = tracePadRadius + lineWidth.thick / 2 + 1;
+		const traceGridSpacing = cornerGuideSpacing;
+		const traceStartRows = [1, 0, -1];
+		const tracePatterns = [
+			[
+				{ column: -1, row: -1 },
+				{ column: -1, row: -1 },
+				{ column: -1, row: 0 },
+			],
+			[
+				{ column: -1, row: 1 },
+				{ column: -1, row: 0 },
+			],
+			[
+				{ column: -1, row: 0 },
+				{ column: -1, row: 1 },
+				{ column: -1, row: 0 },
+			],
+		];
+
+		function leftArcLimitAtY(y, clearance = 0) {
+			const arcHalfAtY = Math.sqrt(Math.max(0, circleRadius ** 2 - (y - circleCenterY) ** 2));
+			return centerX - arcHalfAtY + clearance;
+		}
+
+		function leftLogoLimitAtY(y, clearance = 0) {
+			const logoHalfAtY = Math.sqrt(Math.max(0, logoGuideRadius ** 2 - (y - logoGuideCenterY) ** 2));
+			return centerX - logoHalfAtY - clearance;
+		}
+
+		function traceGridPoint(column, row) {
+			return {
+				x: centerX + column * traceGridSpacing,
+				y: logoGuideCenterY - row * traceGridSpacing,
+			};
+		}
+
+		function firstOutsideLogoColumn(row) {
+			const pointY = traceGridPoint(0, row).y;
+			return Math.floor((leftLogoLimitAtY(pointY, traceLineClearance) - centerX) / traceGridSpacing);
+		}
+
+		function buildTracePoints(startRow, pattern) {
+			const outsideColumn = firstOutsideLogoColumn(startRow);
+			const points = [
+				{ column: 0, row: startRow },
+				{ column: outsideColumn, row: startRow },
+			];
+			let current = { column: outsideColumn, row: startRow };
+
+			for (const step of pattern) {
+				current = {
+					column: current.column + step.column,
+					row: current.row + step.row,
+				};
+				points.push(current);
+			}
+
+			const endPoint = traceGridPoint(current.column, current.row);
+			const minEndX = leftArcLimitAtY(endPoint.y, tracePadClearance);
+			const maxEndX = leftLogoLimitAtY(endPoint.y, tracePadClearance);
+			if (endPoint.x < minEndX || endPoint.x > maxEndX) return [];
+
+			return points;
+		}
+
+		function pathFromGridPoints(points) {
+			return points
+				.map(({ column, row }, index) => {
+					const point = traceGridPoint(column, row);
+					if (index === 0) return `M ${point.x} ${point.y}`;
+					if (row === points[index - 1].row) return `H ${point.x}`;
+					return `L ${point.x} ${point.y}`;
+				})
+				.join(" ");
+		}
+
+		if (traceGridSpacing > 0) {
+			for (let index = 0; index < traceCount; index += 1) {
+				const tracePoints = buildTracePoints(traceStartRows[index], tracePatterns[index]);
+				if (tracePoints.length === 0) continue;
+				const startPoint = traceGridPoint(tracePoints[0].column, tracePoints[0].row);
+				const endGridPoint = tracePoints[tracePoints.length - 1];
+				const endPoint = traceGridPoint(endGridPoint.column, endGridPoint.row);
+				const maskRadius = tracePadRadius + lineWidth.thick / 2;
+				traceLeft.push(
+					strokePath(pathFromGridPoints(tracePoints), "brass", lineWidth.thick),
+				);
+				tracePadMaskCutsLeft.push(
+					`<circle cx="${startPoint.x}" cy="${startPoint.y}" r="${maskRadius}" fill="#000"/>`,
+					`<circle cx="${endPoint.x}" cy="${endPoint.y}" r="${maskRadius}" fill="#000"/>`,
+				);
+				tracePadsLeft.push(
+					`<circle class="brass center-trace-pad" cx="${startPoint.x}" cy="${startPoint.y}" r="${tracePadRadius}" stroke-width="${lineWidth.thick}"/>`,
+					`<circle class="brass center-trace-pad" cx="${endPoint.x}" cy="${endPoint.y}" r="${tracePadRadius}" stroke-width="${lineWidth.thick}"/>`,
+				);
+			}
+		}
+
+		const glowCenterY = `${(logoGuideCenterY / height) * 100}%`;
+		const glowRadius = isVertical ? "82%" : "72%";
+		const html = `<defs>
+			<radialGradient id="${uid}-glow" cx="50%" cy="${glowCenterY}" r="${glowRadius}">
+				<stop offset="0" stop-color="var(--color-orange)" stop-opacity="0.13"/>
+				<stop offset="0.52" stop-color="var(--color-brass)" stop-opacity="0.055"/>
+				<stop offset="1" stop-color="var(--color-black)" stop-opacity="0"/>
+			</radialGradient>
+			<clipPath id="${uid}-frame-x-clip" clipPathUnits="userSpaceOnUse">
+				<rect x="${frameInset}" y="0" width="${frameWidth}" height="${height}"/>
+			</clipPath>
+			<clipPath id="${uid}-trace-clip" clipPathUnits="userSpaceOnUse">
+				<path d="M ${centerX - circleRadius} ${circleCenterY} A ${circleRadius} ${circleRadius} 0 0 1 ${centerX + circleRadius} ${circleCenterY} L ${centerX - circleRadius} ${circleCenterY} Z"/>
+			</clipPath>
+			<mask id="${uid}-trace-line-mask" maskUnits="userSpaceOnUse">
+				<rect width="${width}" height="${height}" fill="#fff"/>
+				<circle cx="${centerX}" cy="${logoGuideCenterY}" r="${logoGuideRadius}" fill="#000"/>
+				${mirrored(tracePadMaskCutsLeft.join(""), width)}
+			</mask>
+			<mask id="${uid}-trace-pad-mask" maskUnits="userSpaceOnUse">
+				<rect width="${width}" height="${height}" fill="#fff"/>
+				<circle cx="${centerX}" cy="${logoGuideCenterY}" r="${logoGuideRadius}" fill="#000"/>
+			</mask>
+			<mask id="${uid}-recessed-mask" maskUnits="userSpaceOnUse">
+				<rect width="${width}" height="${height}" fill="#fff"/>
+				<path d="${foregroundTopMaskPath}" fill="#000" stroke="#000" stroke-width="${foregroundTopMaskStrokeWidth}"/>
+			</mask>
+			<mask id="${uid}-side-forest-mask" maskUnits="userSpaceOnUse">
+				<rect width="${width}" height="${height}" fill="#fff"/>
+				${mirrored(sideForestMaskCutsLeft.join(""), width)}
+			</mask>
+			<style>
+				.cathedral-art * { vector-effect: non-scaling-stroke; }
+				.cathedral-art .brass,
+				.cathedral-art .brass-dim,
+				.cathedral-art .orange { fill: none; stroke-linecap: square; stroke-linejoin: miter; }
+				.cathedral-art .brass { stroke: var(--color-brass); }
+				.cathedral-art .brass-dim { stroke: var(--color-brass-dim); }
+				.cathedral-art .orange { stroke: var(--color-orange); }
+				.cathedral-art .brass-fill { fill: var(--color-brass); stroke: none; }
+				.cathedral-art .orange-fill { fill: var(--color-orange); stroke: none; }
+				.cathedral-art .corner-trace { fill: none; stroke: var(--color-brass); stroke-linecap: round; stroke-linejoin: round; }
+				.cathedral-art .corner-terminal { fill: var(--color-black); stroke: var(--color-brass); }
+				.cathedral-art .side-forest-cap { fill: none; }
+				.cathedral-art .cathedral-bg { fill: transparent; }
+				.cathedral-art .cathedral-panel { fill: none; }
+			</style>
+		</defs>
+		<g class="cathedral-art">
+			<rect class="cathedral-bg" width="${width}" height="${height}"/>
+			<rect width="${width}" height="${height}" fill="url(#${uid}-glow)"/>
+			<g clip-path="url(#${uid}-frame-x-clip)">
+				<g class="recessed-layer" mask="url(#${uid}-recessed-mask)">${recessedLayer.join("")}</g>
+				<rect class="cathedral-panel" x="${contentX}" y="${contentY}" width="${contentWidth}" height="${contentHeight}"/>
+				<g class="corner-guides">${cornerGuides.join("")}</g>
+				<g class="side-forest" mask="url(#${uid}-side-forest-mask)">${mirrored(sideForestLeft.join(""), width)}</g>
+				<g class="side-forest-caps">${mirrored(sideForestCapsLeft.join(""), width)}</g>
+				<g>${centerPaths.join("")}</g>
+				<g>${mirrored(stepLeft.join(""), width)}</g>
+				<g>${centerAccent.join("")}</g>
+				<g class="center-traces" clip-path="url(#${uid}-trace-clip)" mask="url(#${uid}-trace-line-mask)">${mirrored(traceLeft.join(""), width)}</g>
+				<g class="center-trace-pads" clip-path="url(#${uid}-trace-clip)" mask="url(#${uid}-trace-pad-mask)">${mirrored(tracePadsLeft.join(""), width)}</g>
+				<g>${centerMarks.join("")}</g>
+			</g>
+			<g>${framePaths.join("")}</g>
+		</g>`;
+
+		return {
+			html,
+			content: {
+				x: contentDisplayX,
+				y: contentY,
+				width: contentDisplayWidth,
+				height: contentHeight,
+			},
+			logo: {
+				x: centerX - logoGuideRadius,
+				y: logoGuideCenterY - logoGuideRadius,
+				size: logoGuideRadius * 2,
+			},
+		};
+	}
+
+	function applyRectProperties(element, prefix, rect, width, height) {
+		element.style.setProperty(`--${prefix}-left`, `${(rect.x / width) * 100}%`);
+		element.style.setProperty(`--${prefix}-top`, `${(rect.y / height) * 100}%`);
+		element.style.setProperty(`--${prefix}-width`, `${(rect.width / width) * 100}%`);
+		element.style.setProperty(`--${prefix}-height`, `${(rect.height / height) * 100}%`);
+	}
+
+	function renderCathedralFrame(frame) {
+		const svg = frame.querySelector(".cathedral-frame__art");
+		if (!(svg instanceof SVGSVGElement)) return;
+		const bounds = frame.getBoundingClientRect();
+		const width = Math.max(320, Math.round(bounds.width));
+		const height = Math.max(240, Math.round(bounds.height));
+		const seed = frame.dataset.seed || "foundry-cathedral";
+		const result = buildCathedral(width, height, seed);
+		svg.setAttribute("xmlns", SVG_NS);
+		svg.setAttribute("width", String(width));
+		svg.setAttribute("height", String(height));
+		svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+		svg.innerHTML = result.html;
+		applyRectProperties(frame, "cathedral-content", result.content, width, height);
+		applyRectProperties(
+			frame,
+			"cathedral-logo",
+			{
+				x: result.logo.x,
+				y: result.logo.y,
+				width: result.logo.size,
+				height: result.logo.size,
+			},
+			width,
+			height,
+		);
+		frame.dataset.ready = "true";
+	}
+
+	const frames = Array.from(document.querySelectorAll("[data-cathedral-frame]"));
+	const resizeObserver = new ResizeObserver((entries) => {
+		for (const entry of entries) {
+			const frame = entry.target;
+			if (!(frame instanceof HTMLElement)) continue;
+			window.requestAnimationFrame(() => renderCathedralFrame(frame));
+		}
+	});
+
+	for (const frame of frames) {
+		if (!(frame instanceof HTMLElement)) continue;
+		resizeObserver.observe(frame);
+		renderCathedralFrame(frame);
+	}
+</script>

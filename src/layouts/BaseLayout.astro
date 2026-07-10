@@ -1,0 +1,45 @@
+---
+import "../styles/global.css";
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const {
+	title = "Covenant Foundry",
+	description = "A dark industrial Art Deco concept for a public software studio and build-in-public community.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content={description} />
+		<meta name="generator" content={Astro.generator} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>{title}</title>
+	</head>
+	<body>
+		<div class="site-shell">
+			<header class="site-header" aria-label="Primary">
+				<nav class="site-nav" aria-label="Main navigation">
+					<a href="/#projects">Projects</a>
+					<a href="/#community">Community</a>
+					<a href="/#about">About</a>
+				</nav>
+			</header>
+
+			<main>
+				<slot />
+			</main>
+
+			<footer class="site-footer">
+				<span>Covenant Foundry</span>
+				<span>Static Astro prototype</span>
+			</footer>
+		</div>
+	</body>
+</html>
