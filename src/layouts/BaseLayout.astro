@@ -4,11 +4,13 @@ import "../styles/global.css";
 interface Props {
 	title?: string;
 	description?: string;
+	chrome?: boolean;
 }
 
 const {
 	title = "Covenant Foundry",
 	description = "A dark industrial Art Deco concept for a public software studio and build-in-public community.",
+	chrome = true,
 } = Astro.props;
 ---
 
@@ -27,23 +29,29 @@ const {
 		<title>{title}</title>
 	</head>
 	<body>
-		<div class="site-shell">
-			<header class="site-header" aria-label="Primary">
-				<nav class="site-nav" aria-label="Main navigation">
-					<a href="/#projects">Projects</a>
-					<a href="/#community">Community</a>
-					<a href="/#about">About</a>
-				</nav>
-			</header>
+		{
+			chrome ? (
+				<div class="site-shell">
+					<header class="site-header" aria-label="Primary">
+						<nav class="site-nav" aria-label="Main navigation">
+							<a href="/#projects">Projects</a>
+							<a href="/#community">Community</a>
+							<a href="/#about">About</a>
+						</nav>
+					</header>
 
-			<main>
+					<main>
+						<slot />
+					</main>
+
+					<footer class="site-footer">
+						<span>Covenant Foundry</span>
+						<span>Static Astro prototype</span>
+					</footer>
+				</div>
+			) : (
 				<slot />
-			</main>
-
-			<footer class="site-footer">
-				<span>Covenant Foundry</span>
-				<span>Static Astro prototype</span>
-			</footer>
-		</div>
+			)
+		}
 	</body>
 </html>

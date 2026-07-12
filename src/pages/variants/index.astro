@@ -1,0 +1,302 @@
+---
+import BrandLogo from "../../components/BrandLogo.astro";
+import VariantLayout from "../../layouts/VariantLayout.astro";
+
+const variants = [
+	{
+		number: "01",
+		title: "The Editorial Foundry",
+		tagline: "Clear, spacious, and story-led",
+		description:
+			"A studio-first homepage with strong typography, restrained Deco framing, featured work, and a quiet reading rhythm.",
+		href: "/variants/editorial",
+		className: "editorial",
+	},
+	{
+		number: "02",
+		title: "The Foundry Console",
+		tagline: "Active, technical, and transparent",
+		description:
+			"A build-in-public dashboard that turns projects, releases, and community activity into a living cyber-foundry interface.",
+		href: "/variants/console",
+		className: "console",
+	},
+	{
+		number: "03",
+		title: "The Cathedral Portal",
+		tagline: "Immersive, symbolic, and cinematic",
+		description:
+			"A bold brand experience centered on the cathedral frame, followed by clean architectural sections and a strong invitation.",
+		href: "/variants/portal",
+		className: "portal",
+	},
+];
+---
+
+<VariantLayout
+	title="Covenant Foundry Homepage Studies"
+	description="Three homepage directions for the Covenant Foundry redesign."
+	active="hub"
+>
+	<main class="study-hub">
+		<header class="study-intro">
+			<div class="study-mark"><BrandLogo alt="" /></div>
+			<p class="study-kicker">Covenant Foundry / Homepage Studies</p>
+			<h1>Three directions.<br /><em>One visual system.</em></h1>
+			<p class="study-lede">
+				Each concept uses the same mission, palette, and design vocabulary with a different balance of
+				clarity, activity, and atmosphere.
+			</p>
+		</header>
+
+		<section class="study-grid" aria-label="Homepage variants">
+			{
+				variants.map((variant) => (
+					<a class:list={["study-card", variant.className]} href={variant.href}>
+						<div class="study-card__topline">
+							<span>{variant.number}</span>
+							<span>{variant.tagline}</span>
+						</div>
+						<div class="study-card__preview" aria-hidden="true">
+							<span class="study-card__arch" />
+							<span class="study-card__signal" />
+						</div>
+						<div>
+							<h2>{variant.title}</h2>
+							<p>{variant.description}</p>
+						</div>
+						<span class="study-card__action">Open concept <b aria-hidden="true">↗</b></span>
+					</a>
+				))
+			}
+		</section>
+	</main>
+</VariantLayout>
+
+<style>
+	.study-hub {
+		width: min(1440px, calc(100% - 2rem));
+		margin-inline: auto;
+		padding: clamp(4rem, 9vw, 8rem) 0 6rem;
+	}
+
+	.study-intro {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		column-gap: clamp(1rem, 3vw, 2.5rem);
+		width: min(900px, 100%);
+		margin-bottom: clamp(3rem, 7vw, 6rem);
+	}
+
+	.study-mark {
+		grid-row: 1 / span 3;
+		width: clamp(4.5rem, 9vw, 7rem);
+		align-self: start;
+		filter: drop-shadow(0 0 30px rgba(244, 127, 22, 0.2));
+	}
+
+	.study-mark :global(img) {
+		width: 100%;
+		height: auto;
+	}
+
+	.study-kicker,
+	.study-card__topline,
+	.study-card__action {
+		font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+		font-weight: 700;
+		letter-spacing: 0.07em;
+		text-transform: uppercase;
+	}
+
+	.study-kicker {
+		align-self: end;
+		margin-bottom: 0.8rem;
+		color: #f47f16;
+		font-size: 0.75rem;
+	}
+
+	.study-intro h1 {
+		font-family: "Iowan Old Style", Baskerville, Georgia, serif;
+		font-size: clamp(3.2rem, 7vw, 7.5rem);
+		font-weight: 500;
+		line-height: 0.88;
+		letter-spacing: -0.04em;
+	}
+
+	.study-intro h1 em {
+		color: #b58a45;
+		font-weight: 400;
+	}
+
+	.study-lede {
+		max-width: 58ch;
+		margin-top: 1.5rem;
+		font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+		font-size: clamp(1rem, 1.4vw, 1.2rem);
+	}
+
+	.study-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1rem;
+	}
+
+	.study-card {
+		position: relative;
+		display: grid;
+		grid-template-rows: auto minmax(13rem, 1fr) auto auto;
+		gap: 1.4rem;
+		min-height: 34rem;
+		padding: 1rem;
+		border: 1px solid rgba(181, 138, 69, 0.52);
+		background: rgba(13, 15, 13, 0.84);
+		box-shadow: 0 30px 90px rgba(0, 0, 0, 0.28);
+		transition: border-color 180ms ease, transform 180ms ease, background 180ms ease;
+	}
+
+	.study-card::before {
+		position: absolute;
+		inset: 8px;
+		pointer-events: none;
+		border: 1px solid rgba(181, 138, 69, 0.2);
+		content: "";
+	}
+
+	.study-card:hover,
+	.study-card:focus-visible {
+		border-color: #f47f16;
+		background: rgba(18, 18, 14, 0.96);
+		outline: 2px solid transparent;
+		transform: translateY(-4px);
+	}
+
+	.study-card__topline {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		color: #9c927f;
+		font-size: 0.66rem;
+	}
+
+	.study-card__topline span:first-child {
+		color: #f47f16;
+	}
+
+	.study-card__preview {
+		position: relative;
+		overflow: hidden;
+		border-top: 1px solid #b58a45;
+		background:
+			linear-gradient(rgba(181, 138, 69, 0.07) 1px, transparent 1px),
+			linear-gradient(90deg, rgba(181, 138, 69, 0.07) 1px, transparent 1px),
+			#090a09;
+		background-size: 28px 28px;
+	}
+
+	.study-card__arch {
+		position: absolute;
+		inset: 20% 13% -30%;
+		border: 1px solid #b58a45;
+		border-radius: 50% 50% 0 0 / 34% 34% 0 0;
+		box-shadow: 0 0 0 8px #090a09, 0 0 0 9px rgba(181, 138, 69, 0.44);
+	}
+
+	.study-card__signal {
+		position: absolute;
+		top: 34%;
+		left: 50%;
+		width: 1.8rem;
+		height: 1.8rem;
+		border: 1px solid #f47f16;
+		border-radius: 50%;
+		background: #080807;
+		box-shadow: 0 0 26px rgba(244, 127, 22, 0.42);
+		transform: translate(-50%, -50%);
+	}
+
+	.study-card.console .study-card__preview {
+		background-size: 16px 16px;
+	}
+
+	.study-card.portal .study-card__arch {
+		inset-inline: 25%;
+		top: 9%;
+	}
+
+	.study-card h2 {
+		font-family: "Iowan Old Style", Baskerville, Georgia, serif;
+		font-size: clamp(2rem, 3vw, 3rem);
+		line-height: 0.96;
+	}
+
+	.study-card p {
+		margin-top: 0.8rem;
+		font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+		font-size: 0.94rem;
+	}
+
+	.study-card__action {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		min-height: 44px;
+		border-top: 1px solid rgba(181, 138, 69, 0.3);
+		padding-top: 0.8rem;
+		color: #f47f16;
+		font-size: 0.72rem;
+	}
+
+	@media (max-width: 980px) {
+		.study-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.study-card {
+			grid-template-columns: minmax(14rem, 0.75fr) 1fr;
+			grid-template-rows: auto 1fr auto;
+			min-height: 21rem;
+		}
+
+		.study-card__preview {
+			grid-row: 1 / -1;
+		}
+	}
+
+	@media (max-width: 620px) {
+		.study-hub {
+			width: min(100% - 1.25rem, 1440px);
+			padding-top: 3rem;
+		}
+
+		.study-intro {
+			grid-template-columns: 1fr;
+		}
+
+		.study-mark {
+			grid-row: auto;
+			margin-bottom: 1.5rem;
+		}
+
+		.study-card {
+			grid-template-columns: 1fr;
+			grid-template-rows: auto 12rem auto auto;
+			min-height: 0;
+		}
+
+		.study-card__preview {
+			grid-row: auto;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.study-card {
+			transition: none;
+		}
+
+		.study-card:hover,
+		.study-card:focus-visible {
+			transform: none;
+		}
+	}
+</style>

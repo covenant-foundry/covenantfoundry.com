@@ -350,6 +350,12 @@
 		filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.62));
 	}
 
+	@media (max-width: 680px) {
+		.cathedral-frame__art .corner-guides {
+			display: none;
+		}
+	}
+
 	.hero-cathedral {
 		min-height: clamp(29rem, 43vw, 41rem);
 	}
@@ -364,42 +370,6 @@
 
 	.hero-cathedral .hero-center h1 span {
 		display: block;
-	}
-
-	.home-intro {
-		display: grid;
-		grid-template-columns: minmax(12rem, 0.42fr) minmax(0, 0.58fr);
-		gap: clamp(1.5rem, 4vw, 4rem);
-		width: min(58rem, 100%);
-		margin: clamp(0.5rem, 2vw, 1.5rem) auto 0;
-		padding: clamp(0.5rem, 2vw, 1.25rem) 0 clamp(0.75rem, 2.4vw, 1.75rem);
-		border-top: 1px solid rgba(181, 138, 69, 0.52);
-		border-bottom: 1px solid rgba(181, 138, 69, 0.28);
-	}
-
-	.home-intro__eyebrow {
-		color: var(--color-orange);
-		font-family: var(--font-mono);
-		font-size: clamp(0.78rem, 1vw, 0.92rem);
-		font-weight: 800;
-		letter-spacing: 0;
-		text-transform: uppercase;
-	}
-
-	.home-intro__copy {
-		display: grid;
-		gap: 0.8rem;
-	}
-
-	.home-intro__copy p {
-		max-width: 42rem;
-		font-size: clamp(0.92rem, 1.15vw, 1.05rem);
-	}
-
-	.home-community-cta {
-		display: grid;
-		justify-items: center;
-		padding: clamp(0.8rem, 2.6vw, 2rem) 0 clamp(2rem, 6vw, 5rem);
 	}
 
 	.hero-cathedral .hero-copy {
@@ -1312,12 +1282,6 @@
 
 		.hero-copy {
 			font-size: 0.95rem;
-		}
-
-		.home-intro {
-			grid-template-columns: 1fr;
-			gap: 0.9rem;
-			width: min(100%, 36rem);
 		}
 
 		.project-strip,

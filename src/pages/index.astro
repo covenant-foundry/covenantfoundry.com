@@ -1,41 +1,12 @@
 ---
+import FrontPage from "../components/front-page/FrontPage.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import BrandLogo from "../components/BrandLogo.astro";
-import CathedralFrame from "../components/CathedralFrame.astro";
-import OrnateButton from "../components/OrnateButton.astro";
 ---
 
 <BaseLayout
 	title="Covenant Foundry"
-	description="Covenant Foundry is a public software studio and build-in-public community."
+	description="Covenant Foundry creates practical software and brings Christian builders together around faithful stewardship, excellent craft, and work that serves."
+	chrome={false}
 >
-	<CathedralFrame class="hero-cathedral" seed="foundry-mr3wu7lf-t1t7" minHeight="clamp(29rem, 43vw, 41rem)">
-		<BrandLogo slot="logo" alt="Covenant Foundry mark" />
-		<div class="hero-center">
-			<h1>
-				<span>Covenant</span>
-				{" "}
-				<span>Foundry</span>
-			</h1>
-		</div>
-	</CathedralFrame>
-
-	<section class="home-intro" aria-label="Introduction">
-		<div class="home-intro__copy">
-			<p>Hi! I'm Jon.</p>
-			<p>
-				Covenant Foundry is my software studio. My purpose in life is to use my
-				time, talents, and treasures to bring glory to God, and my favorite way
-				to do so is to build useful tools.
-			</p>
-			<p>
-				If you share that purpose, come hang out with me and other builders and
-				founders in the Discord!
-			</p>
-		</div>
-	</section>
-
-	<div class="home-community-cta">
-		<OrnateButton href="/#community">Join the Community -&gt;</OrnateButton>
-	</div>
+	<FrontPage />
 </BaseLayout>

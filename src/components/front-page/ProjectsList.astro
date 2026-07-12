@@ -1,0 +1,35 @@
+---
+import ProjectDossiers from "./ProjectDossiers.astro";
+import { frontPageProjects, type FrontPageProject } from "../../data/frontPageProjects";
+
+interface Props {
+	id?: string;
+	projects?: FrontPageProject[];
+}
+
+const {
+	id = "projects",
+	projects = frontPageProjects,
+} = Astro.props;
+---
+
+<section id={id} class="projects-list" aria-label="Projects">
+	<ProjectDossiers projects={projects} />
+</section>
+
+<style>
+	.projects-list {
+		width: min(
+			var(--front-page-max, 1440px),
+			calc(100% - var(--front-page-pad, clamp(1rem, 4vw, 4.5rem)) * 2)
+		);
+		margin-inline: auto;
+		padding-block: clamp(2rem, 4vw, 3.5rem) clamp(6rem, 11vw, 10rem);
+	}
+
+	@media (max-width: 680px) {
+		.projects-list {
+			padding-top: 2rem;
+		}
+	}
+</style>

@@ -1,0 +1,176 @@
+---
+import "../styles/global.css";
+
+interface Props {
+	title: string;
+	description: string;
+	active?: "editorial" | "console" | "portal" | "hub";
+}
+
+const { title, description, active = "hub" } = Astro.props;
+
+const variants = [
+	{ key: "editorial", label: "01 · Editorial", href: "/variants/editorial" },
+	{ key: "console", label: "02 · Console", href: "/variants/console" },
+	{ key: "portal", label: "03 · Portal", href: "/variants/portal" },
+] as const;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content={description} />
+		<meta name="theme-color" content="#080807" />
+		<link rel="icon" href="/favicon.ico" sizes="any" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
+		<link rel="apple-touch-icon" href="/favicons/apple-touch-icon.png" />
+		<title>{title}</title>
+	</head>
+	<body>
+		<a class="review-skip" href="#variant-main">Skip to homepage concept</a>
+		<header class="review-bar" aria-label="Homepage variant review">
+			<a class="review-bar__home" href="/variants">
+				<span class="review-bar__lamp" aria-hidden="true"></span>
+				Homepage studies
+			</a>
+			<nav aria-label="Choose a homepage variant">
+				{
+					variants.map((variant) => (
+						<a
+							href={variant.href}
+							aria-current={active === variant.key ? "page" : undefined}
+						>
+							{variant.label}
+						</a>
+					))
+				}
+			</nav>
+			<span class="review-bar__note">Review build</span>
+		</header>
+		<div id="variant-main" class="variant-canvas">
+			<slot />
+		</div>
+	</body>
+</html>
+
+<style>
+	:global(html) {
+		scroll-padding-top: 5rem;
+	}
+
+	.review-skip {
+		position: fixed;
+		top: 0.5rem;
+		left: 0.5rem;
+		z-index: 100;
+		padding: 0.7rem 0.9rem;
+		background: #f2ecdc;
+		color: #080807;
+		font: 700 0.78rem/1 ui-monospace, "SFMono-Regular", Consolas, monospace;
+		transform: translateY(-150%);
+	}
+
+	.review-skip:focus-visible {
+		transform: translateY(0);
+	}
+
+	.review-bar {
+		position: sticky;
+		top: 0;
+		z-index: 80;
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr) auto;
+		min-height: 46px;
+		align-items: center;
+		gap: 1rem;
+		padding: 0.35rem clamp(0.75rem, 2vw, 1.5rem);
+		border-bottom: 1px solid rgba(181, 138, 69, 0.55);
+		background: rgba(8, 8, 7, 0.94);
+		box-shadow: 0 12px 32px rgba(0, 0, 0, 0.32);
+		backdrop-filter: blur(14px);
+		color: #d8cdb8;
+		font: 650 0.72rem/1.2 ui-monospace, "SFMono-Regular", Consolas, monospace;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	.review-bar__home,
+	.review-bar nav,
+	.review-bar nav a {
+		display: flex;
+		align-items: center;
+	}
+
+	.review-bar__home {
+		gap: 0.55rem;
+		white-space: nowrap;
+	}
+
+	.review-bar__lamp {
+		width: 0.55rem;
+		height: 0.55rem;
+		border: 1px solid #f47f16;
+		border-radius: 999px;
+		box-shadow: 0 0 12px rgba(244, 127, 22, 0.75);
+	}
+
+	.review-bar nav {
+		justify-content: center;
+		gap: 0.35rem;
+	}
+
+	.review-bar nav a {
+		min-height: 34px;
+		padding: 0.45rem 0.75rem;
+		border: 1px solid transparent;
+		white-space: nowrap;
+	}
+
+	.review-bar nav a:hover,
+	.review-bar nav a:focus-visible,
+	.review-bar nav a[aria-current="page"] {
+		border-color: rgba(181, 138, 69, 0.75);
+		color: #f2ecdc;
+		outline: 0;
+	}
+
+	.review-bar nav a[aria-current="page"] {
+		background: rgba(181, 138, 69, 0.12);
+		color: #f47f16;
+	}
+
+	.review-bar__note {
+		color: #9c927f;
+		white-space: nowrap;
+	}
+
+	.variant-canvas {
+		min-height: calc(100vh - 46px);
+	}
+
+	@media (max-width: 760px) {
+		.review-bar {
+			grid-template-columns: 1fr;
+			gap: 0.25rem;
+			padding-block: 0.45rem;
+		}
+
+		.review-bar__home,
+		.review-bar__note {
+			display: none;
+		}
+
+		.review-bar nav {
+			overflow-x: auto;
+			justify-content: flex-start;
+			scrollbar-width: none;
+		}
+
+		.review-bar nav a {
+			min-height: 40px;
+			padding-inline: 0.55rem;
+		}
+	}
+</style>

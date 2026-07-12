@@ -1,0 +1,465 @@
+---
+import { frontPageProjects, type FrontPageProject } from "../../data/frontPageProjects";
+
+interface Props {
+	projects?: FrontPageProject[];
+}
+
+const { projects = frontPageProjects } = Astro.props;
+---
+
+<div class="dossiers" role="group" aria-label="Project dossiers">
+	<div class="dossiers__grid">
+		{
+			projects.map((project) => (
+				<article class:list={["dossier", `dossier--${project.statusTone}`]}>
+					<div class="dossier__identity">
+						<h3>{project.name}</h3>
+						{project.productionHref ? (
+							<a href={project.productionHref} target="_blank" rel="noopener noreferrer">
+								{project.domain}
+								<svg viewBox="0 0 16 16" aria-hidden="true">
+									<path d="M6 3h7v7M13 3 6.5 9.5M11 8.5V13H3V5h4.5" />
+								</svg>
+							</a>
+						) : (
+							<p>{project.domain}</p>
+						)}
+					</div>
+
+					<p class="dossier__description">{project.description}</p>
+					<a class="dossier__details" href={project.detailHref}>
+						Project details <span aria-hidden="true">→</span>
+					</a>
+
+					<dl class="dossier__facts">
+						<div class="fact fact--status">
+							<dt>Go-live status</dt>
+							<dd>
+								<strong>{project.status}</strong>
+								<span>{project.statusDetail}</span>
+							</dd>
+						</div>
+						<div class="fact">
+							<dt>Support mechanism</dt>
+							<dd>
+								<strong>{project.support}</strong>
+								<span>{project.supportDetail}</span>
+							</dd>
+						</div>
+					</dl>
+
+					<section class="build-log" aria-labelledby={`${project.slug}-build-log`}>
+						<div class="build-log__heading">
+							<h4 id={`${project.slug}-build-log`}>
+								<a href={`${project.detailHref}#build-log`}>Build log</a>
+							</h4>
+							<span>{String(project.log.length).padStart(2, "0")} entries</span>
+						</div>
+						<ol>
+							{project.log.map((entry) => (
+								<li>
+									<a
+										class="log-entry"
+										href={`${project.detailHref}#build-log-${entry.slug}`}
+										aria-label={`${entry.title} — ${project.name} build log entry`}
+									>
+										<span class="log-entry__date">{entry.date}</span>
+										<span class="log-entry__body">
+											<strong>{entry.title}</strong>
+											<span>{entry.summary}</span>
+										</span>
+										<i aria-hidden="true">→</i>
+									</a>
+								</li>
+							))}
+						</ol>
+					</section>
+				</article>
+			))
+		}
+	</div>
+</div>
+
+<style>
+	.dossiers {
+		--dossier-brass: #b58a45;
+		--dossier-brass-bright: #d3a763;
+		--dossier-orange: #f47f16;
+		--dossier-ivory: #f2ecdc;
+		--dossier-parchment: #d8cdb8;
+		--dossier-muted: #9c927f;
+		position: relative;
+		width: 100%;
+	}
+
+	.dossiers__grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1px;
+		padding: 1px;
+		background: rgba(181, 138, 69, 0.36);
+		box-shadow: 0 34px 100px rgba(0, 0, 0, 0.28);
+	}
+
+	.dossier {
+		--status-color: var(--dossier-orange);
+		position: relative;
+		display: grid;
+		grid-template-rows: auto minmax(8.5rem, auto) auto auto 1fr;
+		min-width: 0;
+		padding: clamp(1.15rem, 2.2vw, 2rem);
+		background:
+			linear-gradient(135deg, rgba(181, 138, 69, 0.09), transparent 24%),
+			linear-gradient(180deg, #10120f, #0a0b0a 68%);
+		isolation: isolate;
+	}
+
+	.dossier--live {
+		--status-color: #73bbb8;
+	}
+
+	.dossier--pilot {
+		--status-color: #f47f16;
+	}
+
+	.dossier--planned {
+		--status-color: #9c927f;
+	}
+
+	.dossier::before,
+	.dossier::after {
+		position: absolute;
+		z-index: -1;
+		content: "";
+		pointer-events: none;
+	}
+
+	.dossier::before {
+		top: 0;
+		left: 50%;
+		width: 38%;
+		height: 2px;
+		background: linear-gradient(90deg, transparent, var(--status-color), transparent);
+		box-shadow: 0 0 16px color-mix(in srgb, var(--status-color) 30%, transparent);
+		transform: translateX(-50%);
+	}
+
+	.dossier::after {
+		inset: 0.55rem;
+		border: 1px solid rgba(181, 138, 69, 0.09);
+		clip-path: polygon(
+			0 1rem,
+			1rem 1rem,
+			1rem 0,
+			calc(100% - 1rem) 0,
+			calc(100% - 1rem) 1rem,
+			100% 1rem,
+			100% calc(100% - 1rem),
+			calc(100% - 1rem) calc(100% - 1rem),
+			calc(100% - 1rem) 100%,
+			1rem 100%,
+			1rem calc(100% - 1rem),
+			0 calc(100% - 1rem)
+		);
+	}
+
+	.build-log__heading,
+	.dossier__details {
+		font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+		font-weight: 750;
+		letter-spacing: 0.075em;
+		text-transform: uppercase;
+	}
+
+	.dossier__identity {
+		padding-top: clamp(0.8rem, 1.5vw, 1.4rem);
+	}
+
+	.dossier__identity h3 {
+		margin: 0;
+		color: var(--dossier-ivory);
+		font-family: "Iowan Old Style", Baskerville, Georgia, serif;
+		font-size: clamp(2rem, 3.2vw, 3.15rem);
+		font-weight: 500;
+		line-height: 0.95;
+		letter-spacing: -0.035em;
+	}
+
+	.dossier__identity p,
+	.dossier__identity a {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		margin-top: 0.65rem;
+		color: var(--dossier-brass-bright);
+		font: 700 0.66rem/1.25 ui-monospace, "SFMono-Regular", Consolas, monospace;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.dossier__identity a:hover {
+		color: var(--dossier-orange);
+	}
+
+	.dossier__identity svg {
+		width: 0.8rem;
+		height: 0.8rem;
+		fill: none;
+		stroke: currentColor;
+		stroke-linecap: square;
+		stroke-linejoin: miter;
+		stroke-width: 1.5;
+	}
+
+	.dossier__description {
+		max-width: 42ch;
+		padding-top: 1.25rem;
+		color: #bdb29e;
+		font-size: 0.9rem;
+		line-height: 1.65;
+	}
+
+	.dossier__details {
+		display: inline-flex;
+		width: fit-content;
+		align-items: center;
+		gap: 0.55rem;
+		margin: -0.75rem 0 1.25rem;
+		color: var(--dossier-parchment);
+		font-size: 0.56rem;
+		line-height: 1.2;
+	}
+
+	.dossier__details span {
+		color: var(--dossier-orange);
+		font-size: 0.8rem;
+	}
+
+	.dossier__details:hover {
+		color: var(--dossier-ivory);
+	}
+
+	.dossier__facts {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		margin: 0;
+		border-top: 1px solid rgba(181, 138, 69, 0.32);
+		border-bottom: 1px solid rgba(181, 138, 69, 0.32);
+	}
+
+	.fact {
+		min-width: 0;
+		padding: 0.95rem 0.85rem 1rem 0;
+	}
+
+	.fact + .fact {
+		padding-right: 0;
+		padding-left: 0.85rem;
+		border-left: 1px solid rgba(181, 138, 69, 0.22);
+	}
+
+	.fact dt {
+		color: #756c5e;
+		font: 750 0.53rem/1.2 ui-monospace, "SFMono-Regular", Consolas, monospace;
+		letter-spacing: 0.07em;
+		text-transform: uppercase;
+	}
+
+	.fact dd {
+		display: grid;
+		gap: 0.28rem;
+		margin: 0.6rem 0 0;
+	}
+
+	.fact strong {
+		color: var(--dossier-parchment);
+		font-size: 0.79rem;
+		line-height: 1.25;
+	}
+
+	.fact--status strong {
+		color: var(--status-color);
+	}
+
+	.fact dd span {
+		color: #867d6e;
+		font-size: 0.68rem;
+		line-height: 1.45;
+	}
+
+	.dossier__identity a:focus-visible,
+	.dossier__details:focus-visible,
+	.log-entry:focus-visible,
+	.build-log__heading a:focus-visible {
+		outline: 2px solid var(--dossier-orange);
+		outline-offset: 3px;
+	}
+
+	.build-log {
+		align-self: stretch;
+		border-top: 1px solid rgba(181, 138, 69, 0.52);
+	}
+
+	.build-log__heading {
+		display: flex;
+		min-height: 3.2rem;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+
+	.build-log__heading h4 {
+		margin: 0;
+		color: var(--dossier-ivory);
+		font: inherit;
+		font-size: 0.67rem;
+	}
+
+	.build-log__heading a {
+		color: inherit;
+		transition: color 160ms ease;
+	}
+
+	.build-log__heading a:hover {
+		color: var(--dossier-orange);
+	}
+
+	.build-log__heading span {
+		color: #756c5e;
+		font-size: 0.52rem;
+	}
+
+	.build-log ol {
+		margin: 0;
+		padding: 0;
+		border-bottom: 1px solid rgba(181, 138, 69, 0.24);
+		list-style: none;
+	}
+
+	.build-log li {
+		border-top: 1px solid rgba(181, 138, 69, 0.2);
+	}
+
+	.log-entry {
+		position: relative;
+		display: grid;
+		grid-template-columns: 5.25rem minmax(0, 1fr) auto;
+		gap: 0.75rem;
+		min-height: 6.75rem;
+		align-items: start;
+		padding: 1rem 0.2rem;
+		transition: background 160ms ease;
+	}
+
+	.log-entry:hover {
+		background: rgba(181, 138, 69, 0.055);
+	}
+
+	.log-entry__date {
+		padding-top: 0.12rem;
+		color: var(--dossier-orange);
+		font: 700 0.54rem/1.45 ui-monospace, "SFMono-Regular", Consolas, monospace;
+		letter-spacing: 0.045em;
+		text-transform: uppercase;
+	}
+
+	.log-entry__body {
+		display: grid;
+		gap: 0.35rem;
+	}
+
+	.log-entry__body strong {
+		color: var(--dossier-parchment);
+		font-size: 0.74rem;
+		line-height: 1.35;
+	}
+
+	.log-entry__body > span {
+		color: #81786b;
+		font-size: 0.67rem;
+		line-height: 1.5;
+	}
+
+	.log-entry > i {
+		color: var(--dossier-orange);
+		font: 400 0.72rem/1 ui-monospace, "SFMono-Regular", Consolas, monospace;
+		font-style: normal;
+	}
+
+	@media (max-width: 1100px) {
+		.dossiers__grid {
+			grid-template-columns: 1fr;
+		}
+
+		.dossier {
+			grid-template-rows: auto;
+		}
+
+		.dossier__description {
+			min-height: 0;
+			padding-bottom: 1.5rem;
+		}
+
+		.log-entry {
+			grid-template-columns: minmax(7rem, 0.22fr) minmax(0, 1fr) auto;
+			min-height: 5.75rem;
+		}
+	}
+
+	@media (max-width: 520px) {
+		.dossier {
+			padding: 1rem;
+		}
+
+		.dossier__identity {
+			padding-top: 1rem;
+		}
+
+		.dossier__identity h3 {
+			font-size: 2.35rem;
+		}
+
+		.dossier__description {
+			font-size: 0.86rem;
+		}
+
+		.dossier__facts {
+			grid-template-columns: 1fr;
+		}
+
+		.fact,
+		.fact + .fact {
+			padding: 0.9rem 0;
+		}
+
+		.fact + .fact {
+			border-top: 1px solid rgba(181, 138, 69, 0.22);
+			border-left: 0;
+		}
+
+		.log-entry {
+			grid-template-columns: 1fr auto;
+			gap: 0.5rem;
+			min-height: 0;
+			padding-block: 1rem;
+		}
+
+		.log-entry__date {
+			grid-column: 1 / -1;
+		}
+
+		.log-entry__body {
+			grid-column: 1;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.dossier__identity a,
+		.dossier__details,
+		.build-log__heading a,
+		.log-entry {
+			transition: none;
+		}
+	}
+</style>

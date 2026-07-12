@@ -122,13 +122,23 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 		const frameWidth = width - frameInset * 2;
 		const frameHeight = height - frameInset * 2;
 		const medallionRadius = clamp(shortSide * 0.035, 5, 22);
-		const railY = frameBottomY - medallionRadius;
 		const contentHeight = frameHeight / PHI;
 		const contentWidth = contentHeight * (16 / 9);
-		const contentX = centerX - contentWidth / 2;
-		const contentY = railY - contentHeight;
 		const circleDiameter = contentWidth / PHI;
 		const circleRadius = circleDiameter / 2;
+		const logoPlacementDiameter = circleDiameter / PHI;
+		const logoGuideDiameter = logoPlacementDiameter / 2;
+		const cornerGuideDotCount = 6;
+		const cornerGuideSize = logoGuideDiameter;
+		const cornerGuideSpacing = cornerGuideSize / (cornerGuideDotCount - 1);
+		const corner = clamp(shortSide * 0.065, 14, cornerGuideSpacing * 2);
+		const frameChamferTopY = frameBottomY - corner;
+		const railY = (frameChamferTopY + frameBottomY) / 2;
+		const railBottomY = frameBottomY;
+		const medallionTopY = railBottomY - medallionRadius;
+		const medallionBottomY = railBottomY + medallionRadius;
+		const contentX = centerX - contentWidth / 2;
+		const contentY = railY - contentHeight;
 		const circleAboveContent = (1 - 1 / PHI) * circleDiameter;
 		const circleCenterY = contentY - circleAboveContent + circleRadius;
 		const circleDyAtGuide = contentY - circleCenterY;
@@ -136,12 +146,6 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 		const circleArcLeftX = centerX - circleHalfChord;
 		const circleArcRightX = centerX + circleHalfChord;
 		const circleTopY = circleCenterY - circleRadius;
-		const logoPlacementDiameter = circleDiameter / PHI;
-		const logoGuideDiameter = logoPlacementDiameter / 2;
-		const cornerGuideDotCount = 6;
-		const cornerGuideSize = logoGuideDiameter;
-		const cornerGuideSpacing = cornerGuideSize / (cornerGuideDotCount - 1);
-		const corner = clamp(shortSide * 0.065, 14, cornerGuideSpacing * 2);
 		const logoGuideRadius = logoGuideDiameter / 2;
 		const logoGuideCenterY = contentY - logoPlacementDiameter / PHI + logoPlacementDiameter / 2;
 		const logoGuideTopY = logoGuideCenterY - logoGuideRadius;
@@ -161,7 +165,7 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 		const recessedOuterArcEndX = recessedLineStartX - recessedArcRun;
 		const recessedOuterStepStartX = recessedOuterArcEndX - recessedLeadRun;
 		const recessedOuterWallX = recessedOuterStepStartX - recessedStepSize * recessedStepCount;
-		const foregroundWallBottomY = railY - medallionRadius;
+		const foregroundWallBottomY = frameChamferTopY;
 		const railEndOffset = grid * (frameWidth / frameHeight);
 		const foregroundRailEndX = frameInset + corner + railEndOffset;
 		const foregroundWallLineEndX = frameInset;
@@ -182,7 +186,7 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 		const foregroundStrokeWidth = LINE_WIDTH.normal;
 		const foregroundTopMaskStrokeWidth = foregroundStrokeWidth + Math.max(2, grid * 0.25);
 		const foregroundTopMaskPath = `M ${circleArcLeftX} ${contentY} A ${circleRadius} ${circleRadius} 0 0 1 ${circleArcRightX} ${contentY} Z`;
-		const framePathD = `M ${frameInset + corner} ${frameInset} H ${width - frameInset - corner} L ${width - frameInset} ${frameInset + corner} V ${height - frameInset - corner} L ${width - frameInset - corner} ${height - frameInset} H ${frameInset + corner} L ${frameInset} ${height - frameInset - corner} V ${frameInset + corner} Z`;
+		const framePathD = `M ${frameInset + corner} ${frameInset} H ${width - frameInset - corner} L ${width - frameInset} ${frameInset + corner} V ${frameChamferTopY} L ${width - frameInset - corner} ${frameBottomY} H ${frameInset + corner} L ${frameInset} ${frameChamferTopY} V ${frameInset + corner} Z`;
 		const contentDisplayWidth = Math.min(contentWidth, frameWidth);
 		const contentDisplayX = centerX - contentDisplayWidth / 2;
 
@@ -454,13 +458,13 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 		stepLeft.push(strokePath(`M ${contentX} ${foregroundWallBottomY} H ${foregroundWallLineEndX}`));
 		centerPaths.push(
 			strokePath(
-				`M ${frameInset + corner} ${railY} H ${centerX - medallionRadius * 4.2} L ${centerX - medallionRadius * 2.7} ${railY + medallionRadius} H ${centerX + medallionRadius * 2.7} L ${centerX + medallionRadius * 4.2} ${railY} H ${width - frameInset - corner}`,
+				`M ${frameInset + corner} ${railY} H ${centerX - medallionRadius * 4.2} L ${centerX - medallionRadius * 2.7} ${railBottomY} H ${centerX + medallionRadius * 2.7} L ${centerX + medallionRadius * 4.2} ${railY} H ${width - frameInset - corner}`,
 			),
 		);
-		centerMarks.push(terminal(centerX, railY + medallionRadius, medallionRadius));
+		centerMarks.push(terminal(centerX, railBottomY, medallionRadius));
 		centerAccent.push(
 			strokePath(
-				`M ${centerX} ${railY} V ${railY + medallionRadius * 2} M ${centerX - medallionRadius} ${railY + medallionRadius} H ${centerX + medallionRadius}`,
+				`M ${centerX} ${medallionTopY} V ${medallionBottomY} M ${centerX - medallionRadius} ${railBottomY} H ${centerX + medallionRadius}`,
 				"orange",
 			),
 		);

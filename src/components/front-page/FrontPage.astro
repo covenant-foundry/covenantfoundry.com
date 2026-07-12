@@ -1,0 +1,188 @@
+---
+import BrandLogo from "../BrandLogo.astro";
+import CathedralFrame from "../CathedralFrame.astro";
+import OrnateButton from "../OrnateButton.astro";
+import CommunityCard from "./CommunityCard.astro";
+import ConvictionSection from "./ConvictionSection.astro";
+import FrontPageFooter from "./FrontPageFooter.astro";
+import FrontPageHeader from "./FrontPageHeader.astro";
+import ProjectsList from "./ProjectsList.astro";
+
+interface Props {
+	discordHref?: string;
+}
+
+const { discordHref = "https://discord.gg/JcWQNBXH42" } = Astro.props;
+---
+
+<div class="front-page">
+	<FrontPageHeader brandHref="#top" />
+
+	<main id="main-content">
+		<CathedralFrame
+			id="top"
+			class="front-page__hero"
+			seed="covenant-cathedral-portal"
+			minHeight="clamp(42rem, 78vh, 54rem)"
+			aspectRatio="16 / 9"
+			ariaLabel="Covenant Foundry introduction"
+		>
+			<BrandLogo slot="logo" alt="" />
+			<div class="front-page__hero-copy">
+				<h1>Build. Ship.<br /><em>Learn. Repeat.</em></h1>
+				<p class="front-page__hero-lede">
+					Covenant Foundry creates useful software and brings Christian builders together around a
+					shared vision of faithfully stewarding our time, talents, and treasures for the kingdom of
+					God.
+				</p>
+				<div class="front-page__hero-actions">
+					<OrnateButton
+						class="front-page__discord-cta"
+						href={discordHref}
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						Join the Discord
+					</OrnateButton>
+				</div>
+			</div>
+		</CathedralFrame>
+
+		<ProjectsList />
+		<CommunityCard ctaHref={discordHref} />
+		<ConvictionSection />
+	</main>
+
+	<FrontPageFooter brandHref="#top" />
+</div>
+
+<style>
+	.front-page {
+		--front-page-pad: clamp(1rem, 4vw, 4.5rem);
+		--front-page-max: 1440px;
+		min-height: 100vh;
+		overflow: clip;
+		background:
+			radial-gradient(circle at 50% 11rem, rgba(244, 127, 22, 0.12), transparent 32rem),
+			linear-gradient(rgba(181, 138, 69, 0.035) 1px, transparent 1px),
+			linear-gradient(90deg, rgba(181, 138, 69, 0.035) 1px, transparent 1px),
+			#080807;
+		background-size: auto, 64px 64px, 64px 64px, auto;
+		color: #f2ecdc;
+		font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+	}
+
+	.front-page :global(:is(a, button):focus-visible) {
+		outline: 2px solid #f47f16;
+		outline-offset: 4px;
+	}
+
+	.front-page main {
+		display: block;
+		width: 100%;
+	}
+
+	:global(.front-page__hero) {
+		width: min(1680px, 100%);
+		margin-inline: auto;
+		border-top: 0;
+	}
+
+	.front-page__hero-copy {
+		display: grid;
+		width: min(46rem, 100%);
+		justify-items: center;
+	}
+
+	.front-page__hero-copy h1 {
+		margin: 0.8rem 0 0;
+		color: #f2ecdc;
+		font-family: "Iowan Old Style", Baskerville, Georgia, serif;
+		font-size: clamp(3.2rem, 5.8vw, 6.3rem);
+		font-weight: 500;
+		line-height: 0.84;
+		letter-spacing: -0.045em;
+	}
+
+	.front-page__hero-copy h1 em {
+		color: #d3a763;
+		font-weight: 400;
+	}
+
+	.front-page__hero-lede {
+		max-width: 61ch;
+		margin: clamp(1rem, 2vw, 1.5rem) 0 0;
+		color: #d8cdb8;
+		font-size: clamp(0.92rem, 1.15vw, 1.08rem);
+		line-height: 1.65;
+	}
+
+	.front-page__hero-actions {
+		display: flex;
+		width: 100%;
+		align-items: center;
+		justify-content: center;
+		margin-top: clamp(1rem, 2vw, 1.5rem);
+	}
+
+	:global(.front-page__discord-cta.ornate-button) {
+		height: 3.6rem;
+		min-height: 48px;
+		aspect-ratio: auto;
+		flex: 0 1 22rem;
+	}
+
+	:global(.front-page__discord-cta .ornate-button__label) {
+		font-size: clamp(0.7rem, 0.9vw, 0.85rem);
+		letter-spacing: 0.04em;
+	}
+
+	@media (max-width: 680px) {
+		.front-page {
+			--front-page-pad: 1rem;
+			background-size: auto, 48px 48px, 48px 48px, auto;
+		}
+
+		:global(.front-page__hero .cathedral-frame__content) {
+			padding: 0.8rem;
+		}
+
+		.front-page__hero-copy h1 {
+			font-size: clamp(2.7rem, 13vw, 3.8rem);
+			line-height: 0.88;
+		}
+
+		.front-page__hero-lede {
+			max-width: 34ch;
+			font-size: 0.9rem;
+			line-height: 1.55;
+		}
+
+		.front-page__hero-actions {
+			margin-top: 0.75rem;
+		}
+
+		:global(.front-page__discord-cta.ornate-button) {
+			width: min(19rem, 100%);
+			height: 3.25rem;
+			min-height: 48px;
+			padding-inline: 3.7rem;
+		}
+
+		:global(.front-page__discord-cta .ornate-button__label) {
+			font-size: 0.75rem;
+		}
+
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.front-page *,
+		.front-page *::before,
+		.front-page *::after {
+			scroll-behavior: auto !important;
+			transition-duration: 0.001ms !important;
+			animation-duration: 0.001ms !important;
+			animation-iteration-count: 1 !important;
+		}
+	}
+</style>

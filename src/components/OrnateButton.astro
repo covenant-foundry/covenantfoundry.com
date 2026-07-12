@@ -2,6 +2,8 @@
 interface Props {
 	href?: string;
 	type?: "button" | "submit" | "reset";
+	target?: "_blank" | "_self" | "_parent" | "_top";
+	rel?: string;
 	class?: string;
 	ariaLabel?: string;
 }
@@ -9,14 +11,24 @@ interface Props {
 const {
 	href,
 	type = "button",
+	target,
+	rel,
 	class: className = "",
 	ariaLabel,
 } = Astro.props;
+
+const safeRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined);
 ---
 
 {
 	href ? (
-		<a class:list={["ornate-button", className]} href={href} aria-label={ariaLabel}>
+		<a
+			class:list={["ornate-button", className]}
+			href={href}
+			target={target}
+			rel={safeRel}
+			aria-label={ariaLabel}
+		>
 			<svg class="ornate-button__art" viewBox="0 0 496 72" preserveAspectRatio="none" aria-hidden="true">
 				<g class="ornate-button__traces" data-ornate-circuit-group fill="none" stroke="var(--color-brass)" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
 					<path class="ornate-button__trace" data-ornate-circuit-trace="top" d="M 112 24 H 100 L 76 48 L 64 36 L 52 24 H 44" />
@@ -180,7 +192,6 @@ const {
 </style>
 
 <script>
-	const SVG_WIDTH = 496;
 	const SVG_HEIGHT = 72;
 
 	function pointPath(points, close = false) {
@@ -328,12 +339,13 @@ const {
 		}
 	}
 
-	function mirrorPoints(points) {
-		return points.map(({ x, y }) => ({ x: SVG_WIDTH - x, y }));
+	function mirrorPoints(points, svgWidth) {
+		return points.map(({ x, y }) => ({ x: svgWidth - x, y }));
 	}
 
 	function renderOrnateButton(button) {
 		const label = button.querySelector(".ornate-button__label");
+		const art = button.querySelector(".ornate-button__art");
 		const plate = button.querySelector("[data-ornate-plate]");
 		const leftTraceOrigin = button.querySelector("[data-ornate-trace-origin-left]");
 		const rightTraceOrigin = button.querySelector("[data-ornate-trace-origin-right]");
@@ -341,6 +353,7 @@ const {
 		const rightSpiral = button.querySelector("[data-ornate-spiral-right]");
 		const circuitGroups = button.querySelectorAll("[data-ornate-circuit-group]");
 		if (!(label instanceof HTMLElement)
+			|| !(art instanceof SVGSVGElement)
 			|| !(plate instanceof SVGPathElement)
 			|| !(leftTraceOrigin instanceof SVGPathElement)
 			|| !(rightTraceOrigin instanceof SVGPathElement)
@@ -349,22 +362,26 @@ const {
 			return;
 		}
 
-		const buttonWidth = button.getBoundingClientRect().width;
-		if (buttonWidth <= 0) return;
+		const bounds = button.getBoundingClientRect();
+		const buttonWidth = bounds.width;
+		const buttonHeight = bounds.height;
+		if (buttonWidth <= 0 || buttonHeight <= 0) return;
 
-		const svgUnitsPerPixel = SVG_WIDTH / buttonWidth;
+		const svgWidth = SVG_HEIGHT * (buttonWidth / buttonHeight);
+		art.setAttribute("viewBox", `0 0 ${roundPathValue(svgWidth)} ${SVG_HEIGHT}`);
+		const svgUnitsPerPixel = SVG_HEIGHT / buttonHeight;
 		const textWidth = label.getBoundingClientRect().width * svgUnitsPerPixel;
 		const height = SVG_HEIGHT * 0.62;
 		const halfHeight = height / 2;
 		const padding = height / 3;
-		const centerX = SVG_WIDTH / 2;
+		const centerX = svgWidth / 2;
 		const centerY = SVG_HEIGHT / 2;
 		const topY = centerY - halfHeight;
 		const bottomY = centerY + halfHeight;
 		const leftTopX = centerX - (textWidth / 2 + padding + halfHeight);
 		const leftPointX = leftTopX - halfHeight;
-		const rightTopX = SVG_WIDTH - leftTopX;
-		const rightPointX = SVG_WIDTH - leftPointX;
+		const rightTopX = svgWidth - leftTopX;
+		const rightPointX = svgWidth - leftPointX;
 		const gap = getSpiralGap(height);
 
 		plate.setAttribute("d", pointPath([
@@ -381,7 +398,7 @@ const {
 
 		const leftSpiralPoints = buildSpiralPoints({ x: leftTopX, y: bottomY }, height);
 		leftSpiral.setAttribute("d", pointPath(leftSpiralPoints));
-		rightSpiral.setAttribute("d", pointPath(mirrorPoints(leftSpiralPoints)));
+		rightSpiral.setAttribute("d", pointPath(mirrorPoints(leftSpiralPoints, svgWidth)));
 
 		const traceOriginOffset = gap * 4;
 		const leftTraceOriginPoints = [
@@ -390,10 +407,13 @@ const {
 			{ x: leftTopX - traceOriginOffset, y: bottomY },
 		];
 		leftTraceOrigin.setAttribute("d", pointPath(leftTraceOriginPoints));
-		rightTraceOrigin.setAttribute("d", pointPath(mirrorPoints(leftTraceOriginPoints)));
+		rightTraceOrigin.setAttribute("d", pointPath(mirrorPoints(leftTraceOriginPoints, svgWidth)));
 
 		const circuitLayout = buildCircuitLayout(leftTraceOriginPoints, height);
-		for (const group of circuitGroups) {
+		for (const [index, group] of Array.from(circuitGroups).entries()) {
+			if (index === 1) {
+				group.setAttribute("transform", `translate(${roundPathValue(svgWidth)} 0) scale(-1 1)`);
+			}
 			renderCircuitGroup(group, circuitLayout);
 		}
 	}

@@ -1,0 +1,217 @@
+---
+import BrandLogo from "../BrandLogo.astro";
+
+export interface FrontPageLink {
+	label: string;
+	href: string;
+	external?: boolean;
+}
+
+interface Props {
+	class?: string;
+	brandHref?: string;
+	brandName?: string;
+	descriptor?: string;
+	links?: FrontPageLink[];
+	skipLabel?: string;
+}
+
+const defaultLinks: FrontPageLink[] = [
+	{ label: "Projects", href: "#projects" },
+	{ label: "Community", href: "#community" },
+	{ label: "About", href: "#about" },
+];
+
+const {
+	class: className = "",
+	brandHref = "#top",
+	brandName = "Covenant Foundry",
+	descriptor = "Software studio & builder community",
+	links = defaultLinks,
+	skipLabel = "Skip to main content",
+} = Astro.props;
+
+const isExternalLink = (link: FrontPageLink) =>
+	link.external ?? /^(?:https?:)?\/\//.test(link.href);
+---
+
+<a class="front-page-skip" href="#main-content">{skipLabel}</a>
+
+<header class:list={["front-page-header", className]}>
+	<a class="front-page-brand" href={brandHref} aria-label={`${brandName} home`}>
+		<span class="front-page-brand__mark" aria-hidden="true"><BrandLogo alt="" /></span>
+		<span class="front-page-brand__name">
+			<strong>{brandName}</strong>
+			<small>{descriptor}</small>
+		</span>
+	</a>
+
+	<nav class="front-page-nav" aria-label="Primary navigation">
+		{
+			links.map((link) => {
+				const external = isExternalLink(link);
+				return (
+					<a
+						href={link.href}
+						target={external ? "_blank" : undefined}
+						rel={external ? "noopener noreferrer" : undefined}
+					>
+						{link.label}
+						{external && <span aria-hidden="true"> ↗</span>}
+					</a>
+				);
+			})
+		}
+	</nav>
+</header>
+
+<style>
+	.front-page-skip {
+		position: fixed;
+		top: 0.75rem;
+		left: 0.75rem;
+		z-index: 100;
+		padding: 0.8rem 1rem;
+		background: #f2ecdc;
+		color: #080807;
+		font: 750 0.72rem/1 ui-monospace, "SFMono-Regular", Consolas, monospace;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		transform: translateY(calc(-100% - 1rem));
+		transition: transform 140ms ease;
+	}
+
+	.front-page-skip:focus-visible {
+		outline: 2px solid #f47f16;
+		outline-offset: 3px;
+		transform: translateY(0);
+	}
+
+	.front-page-header {
+		display: flex;
+		width: min(
+			var(--front-page-max, 1440px),
+			calc(100% - var(--front-page-pad, clamp(1rem, 4vw, 4.5rem)) * 2)
+		);
+		min-height: 76px;
+		align-items: center;
+		justify-content: space-between;
+		gap: 2rem;
+		margin-inline: auto;
+		border-bottom: 1px solid rgba(181, 138, 69, 0.46);
+	}
+
+	.front-page-brand,
+	.front-page-nav,
+	.front-page-nav a {
+		display: flex;
+		align-items: center;
+	}
+
+	.front-page-brand {
+		min-height: 54px;
+		gap: 0.75rem;
+	}
+
+	.front-page-brand__mark {
+		display: block;
+		width: 2.4rem;
+		filter: drop-shadow(0 0 14px rgba(244, 127, 22, 0.22));
+	}
+
+	.front-page-brand__mark :global(img) {
+		width: 100%;
+		height: auto;
+	}
+
+	.front-page-brand__name {
+		display: grid;
+		gap: 0.05rem;
+	}
+
+	.front-page-brand__name strong {
+		font-family: "Iowan Old Style", Baskerville, Georgia, serif;
+		font-size: 1.06rem;
+		font-weight: 600;
+		letter-spacing: 0.01em;
+	}
+
+	.front-page-brand__name small {
+		color: #9c927f;
+		font: 700 0.57rem/1.2 ui-monospace, "SFMono-Regular", Consolas, monospace;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.front-page-nav {
+		gap: clamp(0.2rem, 1vw, 0.8rem);
+	}
+
+	.front-page-nav a {
+		position: relative;
+		min-height: 44px;
+		padding-inline: 0.8rem;
+		color: #d8cdb8;
+		font: 700 0.72rem/1 ui-monospace, "SFMono-Regular", Consolas, monospace;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.front-page-nav a::after {
+		position: absolute;
+		right: 0.8rem;
+		bottom: 0.35rem;
+		left: 0.8rem;
+		height: 1px;
+		background: #f47f16;
+		content: "";
+		transform: scaleX(0);
+		transition: transform 160ms ease;
+	}
+
+	.front-page-nav a:hover::after,
+	.front-page-nav a:focus-visible::after {
+		transform: scaleX(1);
+	}
+
+	.front-page-brand:focus-visible,
+	.front-page-nav a:focus-visible {
+		outline: 2px solid #f47f16;
+		outline-offset: 4px;
+	}
+
+	@media (max-width: 900px) {
+		.front-page-header {
+			gap: 1rem;
+		}
+
+		.front-page-brand__name small {
+			display: none;
+		}
+	}
+
+	@media (max-width: 680px) {
+		.front-page-header {
+			flex-wrap: wrap;
+			gap: 0;
+			padding-top: 0.35rem;
+		}
+
+		.front-page-brand {
+			width: 100%;
+			justify-content: center;
+		}
+
+		.front-page-nav {
+			width: 100%;
+			justify-content: center;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.front-page-skip,
+		.front-page-nav a::after {
+			transition-duration: 0.001ms;
+		}
+	}
+</style>

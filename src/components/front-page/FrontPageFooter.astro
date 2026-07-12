@@ -1,0 +1,174 @@
+---
+import BrandLogo from "../BrandLogo.astro";
+
+export interface FrontPageLink {
+	label: string;
+	href: string;
+	external?: boolean;
+}
+
+interface Props {
+	class?: string;
+	brandHref?: string;
+	brandName?: string;
+	tagline?: string;
+	links?: FrontPageLink[];
+	copyright?: string;
+}
+
+const defaultLinks: FrontPageLink[] = [
+	{ label: "Projects", href: "#projects" },
+	{ label: "Community", href: "#community" },
+	{ label: "About", href: "#about" },
+	{ label: "GitHub", href: "https://github.com/Covenant-Foundry", external: true },
+	{ label: "Discord", href: "https://discord.gg/JcWQNBXH42", external: true },
+];
+
+const {
+	class: className = "",
+	brandHref = "#top",
+	brandName = "Covenant Foundry",
+	tagline = "A Christian software studio and builder community.",
+	links = defaultLinks,
+	copyright = `© ${new Date().getFullYear()} Covenant Foundry`,
+} = Astro.props;
+
+const isExternalLink = (link: FrontPageLink) =>
+	link.external ?? /^(?:https?:)?\/\//.test(link.href);
+---
+
+<footer class:list={["front-page-footer", className]}>
+	<a class="front-page-footer__brand" href={brandHref} aria-label={`Back to ${brandName} home`}>
+		<span aria-hidden="true"><BrandLogo alt="" /></span>
+		<strong>{brandName}</strong>
+	</a>
+
+	<p>{tagline}</p>
+
+	<nav aria-label="Footer navigation">
+		{
+			links.map((link) => {
+				const external = isExternalLink(link);
+				return (
+					<a
+						href={link.href}
+						target={external ? "_blank" : undefined}
+						rel={external ? "noopener noreferrer" : undefined}
+					>
+						{link.label}
+						{external && <span aria-hidden="true"> ↗</span>}
+					</a>
+				);
+			})
+		}
+	</nav>
+
+	<small>{copyright}</small>
+</footer>
+
+<style>
+	.front-page-footer {
+		display: grid;
+		grid-template-columns: auto minmax(12rem, 1fr) auto;
+		width: min(
+			var(--front-page-max, 1440px),
+			calc(100% - var(--front-page-pad, clamp(1rem, 4vw, 4.5rem)) * 2)
+		);
+		min-height: 180px;
+		align-items: center;
+		gap: 1.5rem 3rem;
+		margin-inline: auto;
+		border-top: 1px solid rgba(181, 138, 69, 0.5);
+		color: #9c927f;
+	}
+
+	.front-page-footer__brand {
+		display: flex;
+		min-height: 48px;
+		align-items: center;
+		gap: 0.65rem;
+		color: #f2ecdc;
+	}
+
+	.front-page-footer__brand span {
+		width: 2.25rem;
+	}
+
+	.front-page-footer__brand :global(img) {
+		width: 100%;
+		height: auto;
+	}
+
+	.front-page-footer__brand strong {
+		font-family: "Iowan Old Style", Baskerville, Georgia, serif;
+		font-size: 1.06rem;
+		font-weight: 600;
+		letter-spacing: 0.01em;
+	}
+
+	.front-page-footer > p {
+		color: #8e8473;
+		font-size: 0.83rem;
+	}
+
+	.front-page-footer nav {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+		gap: 0.2rem 1rem;
+	}
+
+	.front-page-footer nav a {
+		display: inline-flex;
+		min-height: 44px;
+		align-items: center;
+		font: 700 0.67rem/1.2 ui-monospace, "SFMono-Regular", Consolas, monospace;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+	}
+
+	.front-page-footer nav a:hover,
+	.front-page-footer nav a:focus-visible {
+		color: #f2ecdc;
+	}
+
+	.front-page-footer__brand:focus-visible,
+	.front-page-footer nav a:focus-visible {
+		outline: 2px solid #f47f16;
+		outline-offset: 4px;
+	}
+
+	.front-page-footer small {
+		grid-column: 1 / -1;
+		padding-bottom: 1.5rem;
+		color: #655d50;
+		font: 650 0.6rem/1.2 ui-monospace, "SFMono-Regular", Consolas, monospace;
+		letter-spacing: 0.07em;
+		text-transform: uppercase;
+	}
+
+	@media (max-width: 900px) {
+		.front-page-footer {
+			grid-template-columns: 1fr auto;
+		}
+
+		.front-page-footer > p {
+			display: none;
+		}
+	}
+
+	@media (max-width: 680px) {
+		.front-page-footer {
+			grid-template-columns: 1fr;
+			padding-top: 2rem;
+		}
+
+		.front-page-footer nav {
+			justify-content: flex-start;
+		}
+
+		.front-page-footer small {
+			padding-bottom: 1.5rem;
+		}
+	}
+</style>
