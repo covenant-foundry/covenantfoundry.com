@@ -8,7 +8,11 @@ const { name, label } = Astro.props;
 ---
 
 <svg class="icon-sigil" viewBox="0 0 64 64" role={label ? "img" : "presentation"} aria-label={label}>
-	<path class="sigil-frame" d="M32 4 56 18v28L32 60 8 46V18z" />
+	<defs>
+		<clipPath id="sigil-community-hex-clip" clipPathUnits="userSpaceOnUse">
+			<path d="M32 4 56 18v28L32 60 8 46V18z" />
+		</clipPath>
+	</defs>
 	{name === "ledger" && (
 		<g>
 			<rect x="21" y="17" width="22" height="30" rx="2" />
@@ -21,9 +25,12 @@ const { name, label } = Astro.props;
 		</g>
 	)}
 	{name === "community" && (
-		<g>
-			<circle cx="32" cy="23" r="6" />
-			<path d="M21 45c2-8 20-8 22 0M18 29c-5 3-6 8-5 13M46 29c5 3 6 8 5 13" />
+		<g clip-path="url(#sigil-community-hex-clip)">
+			<g transform="translate(8 8) scale(2)">
+				<path class="sigil-community" d="M18 21a8 8 0 0 0-16 0" />
+				<circle class="sigil-community" cx="10" cy="8" r="5" />
+				<path class="sigil-community" d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3" />
+			</g>
 		</g>
 	)}
 	{name === "arrow" && (
@@ -47,4 +54,13 @@ const { name, label } = Astro.props;
 			<path d="M20 44V32M30 44V24M40 44V18M18 44h28" />
 		</g>
 	)}
+	<path class="sigil-frame" d="M32 4 56 18v28L32 60 8 46V18z" />
 </svg>
+
+<style>
+	.icon-sigil :global(.sigil-community) {
+		stroke-linecap: round;
+		stroke-linejoin: round;
+		stroke-width: 1.25;
+	}
+</style>

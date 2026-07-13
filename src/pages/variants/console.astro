@@ -1,6 +1,7 @@
 ---
 import BrandLogo from "../../components/BrandLogo.astro";
 import IconSigil from "../../components/IconSigil.astro";
+import SiteIcon from "../../components/SiteIcon.astro";
 import StatusBadge from "../../components/StatusBadge.astro";
 import VariantLayout from "../../layouts/VariantLayout.astro";
 
@@ -85,7 +86,7 @@ const buildLog = [
 				<a href="#about">About</a>
 			</nav>
 			<a class="header-cta" href={discordUrl} target="_blank" rel="noopener">
-				Join Discord <span aria-hidden="true">↗</span>
+				Join Discord <SiteIcon name="external-link" />
 			</a>
 		</header>
 
@@ -106,7 +107,7 @@ const buildLog = [
 							Explore the work <span aria-hidden="true">↓</span>
 						</a>
 						<a class="button button--secondary" href={discordUrl} target="_blank" rel="noopener">
-							Meet the builders <span aria-hidden="true">↗</span>
+							Meet the builders <SiteIcon name="external-link" />
 						</a>
 					</div>
 					<ul class="hero__principles" aria-label="Studio principles">
@@ -253,7 +254,7 @@ const buildLog = [
 							to help one another build wisely.
 						</p>
 						<a class="text-link" href={discordUrl} target="_blank" rel="noopener">
-							Join the conversation <span aria-hidden="true">↗</span>
+							Join the conversation <SiteIcon name="external-link" />
 						</a>
 					</aside>
 				</div>
@@ -272,7 +273,7 @@ const buildLog = [
 						feedback, practical help, and meaningful collaboration.
 					</p>
 					<a class="button button--primary" href={discordUrl} target="_blank" rel="noopener">
-						Join the Discord <span aria-hidden="true">↗</span>
+						Join the Discord <SiteIcon name="external-link" />
 					</a>
 				</div>
 				<ul class="community__routes" aria-label="Ways to participate">
@@ -300,7 +301,7 @@ const buildLog = [
 					</p>
 					<div class="about__links">
 						<a class="text-link" href="#projects">See what I’m building <span aria-hidden="true">↑</span></a>
-						<a class="text-link" href={discordUrl} target="_blank" rel="noopener">Say hello in Discord <span aria-hidden="true">↗</span></a>
+						<a class="text-link" href={discordUrl} target="_blank" rel="noopener">Say hello in Discord <SiteIcon name="external-link" /></a>
 					</div>
 				</div>
 			</section>
@@ -318,8 +319,8 @@ const buildLog = [
 				<a href="#about">About</a>
 			</nav>
 			<div class="console-footer__meta">
-				<a href={discordUrl} target="_blank" rel="noopener">Discord ↗</a>
-				<a href="https://github.com/Covenant-Foundry" target="_blank" rel="noopener">GitHub ↗</a>
+				<a class="console-footer__icon-link" href={discordUrl} target="_blank" rel="noopener" aria-label="Discord" title="Discord"><SiteIcon name="discord" /></a>
+				<a class="console-footer__icon-link" href="https://github.com/Covenant-Foundry" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><SiteIcon name="github" /></a>
 				<span>© 2026 Covenant Foundry</span>
 			</div>
 		</footer>
@@ -348,6 +349,11 @@ const buildLog = [
 		background-size: auto, 42px 42px, 42px 42px, auto;
 		color: var(--console-ivory);
 		font-family: "Avenir Next", Avenir, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+	}
+
+	.console :global(.site-icon--external-link) {
+		width: 0.9rem;
+		height: 0.9rem;
 	}
 
 	.console::before {
@@ -1325,6 +1331,15 @@ const buildLog = [
 
 	.console-footer__meta {
 		justify-content: flex-end;
+	}
+
+	.console-footer__meta .console-footer__icon-link {
+		width: 44px;
+		justify-content: center;
+	}
+
+	.console-footer__icon-link :global(.site-icon) {
+		font-size: 1.15rem;
 	}
 
 	@keyframes signal-pulse {

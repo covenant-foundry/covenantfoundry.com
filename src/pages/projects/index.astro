@@ -1,0 +1,31 @@
+---
+import ProjectDossiers from "../../components/front-page/ProjectDossiers.astro";
+import StudioLayout from "../../layouts/StudioLayout.astro";
+import {
+	createProjectDossier,
+	getPublishedDevlogs,
+	getPublishedProjects,
+} from "../../lib/content";
+
+const [projects, devlogs] = await Promise.all([
+	getPublishedProjects(),
+	getPublishedDevlogs(),
+]);
+const projectDossiers = projects.map((project) => createProjectDossier(project, devlogs));
+---
+
+<StudioLayout
+	title="Projects | Covenant Foundry"
+	description="Explore the software projects built and maintained by Covenant Foundry."
+>
+	<header class="studio-hero studio-wrap">
+		<h1>Projects</h1>
+		<p class="studio-lede">
+			Projects built and maintained by Covenant Foundry.
+		</p>
+	</header>
+
+	<section class="studio-section studio-section--collection studio-wrap" aria-label="Projects">
+		<ProjectDossiers projects={projectDossiers} />
+	</section>
+</StudioLayout>

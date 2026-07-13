@@ -1,10 +1,13 @@
 ---
-import BrandLogo from "../BrandLogo.astro";
+import SiteIcon, { type SiteIconName } from "../SiteIcon.astro";
+import BrandLockup from "./BrandLockup.astro";
 
 export interface FrontPageLink {
 	label: string;
 	href: string;
 	external?: boolean;
+	current?: boolean;
+	icon?: Extract<SiteIconName, "discord" | "github">;
 }
 
 interface Props {
@@ -17,9 +20,11 @@ interface Props {
 }
 
 const defaultLinks: FrontPageLink[] = [
-	{ label: "Projects", href: "#projects" },
-	{ label: "Community", href: "#community" },
-	{ label: "About", href: "#about" },
+	{ label: "Projects", href: "/projects", current: Astro.url.pathname.startsWith("/projects") },
+	{ label: "Community", href: "/#community" },
+	{ label: "About", href: "/#about" },
+	{ label: "GitHub", href: "https://github.com/Covenant-Foundry", external: true, icon: "github" },
+	{ label: "Discord", href: "https://discord.gg/JcWQNBXH42", external: true, icon: "discord" },
 ];
 
 const {
@@ -38,13 +43,12 @@ const isExternalLink = (link: FrontPageLink) =>
 <a class="front-page-skip" href="#main-content">{skipLabel}</a>
 
 <header class:list={["front-page-header", className]}>
-	<a class="front-page-brand" href={brandHref} aria-label={`${brandName} home`}>
-		<span class="front-page-brand__mark" aria-hidden="true"><BrandLogo alt="" /></span>
-		<span class="front-page-brand__name">
-			<strong>{brandName}</strong>
-			<small>{descriptor}</small>
-		</span>
-	</a>
+	<BrandLockup
+		class="front-page-header__brand"
+		href={brandHref}
+		name={brandName}
+		tagline={descriptor}
+	/>
 
 	<nav class="front-page-nav" aria-label="Primary navigation">
 		{
@@ -52,12 +56,16 @@ const isExternalLink = (link: FrontPageLink) =>
 				const external = isExternalLink(link);
 				return (
 					<a
+						class:list={[link.icon && "front-page-nav__icon-link"]}
 						href={link.href}
 						target={external ? "_blank" : undefined}
 						rel={external ? "noopener noreferrer" : undefined}
+						aria-current={link.current ? "page" : undefined}
+						aria-label={link.icon ? link.label : undefined}
+						title={link.icon ? link.label : undefined}
 					>
-						{link.label}
-						{external && <span aria-hidden="true"> ↗</span>}
+						{link.icon ? <SiteIcon name={link.icon} /> : link.label}
+						{external && !link.icon && <SiteIcon name="external-link" />}
 					</a>
 				);
 			})
@@ -101,55 +109,25 @@ const isExternalLink = (link: FrontPageLink) =>
 		border-bottom: 1px solid rgba(181, 138, 69, 0.46);
 	}
 
-	.front-page-brand,
 	.front-page-nav,
 	.front-page-nav a {
 		display: flex;
 		align-items: center;
 	}
 
-	.front-page-brand {
-		min-height: 54px;
-		gap: 0.75rem;
-	}
-
-	.front-page-brand__mark {
-		display: block;
-		width: 2.4rem;
-		filter: drop-shadow(0 0 14px rgba(244, 127, 22, 0.22));
-	}
-
-	.front-page-brand__mark :global(img) {
-		width: 100%;
-		height: auto;
-	}
-
-	.front-page-brand__name {
-		display: grid;
-		gap: 0.05rem;
-	}
-
-	.front-page-brand__name strong {
-		font-family: "Iowan Old Style", Baskerville, Georgia, serif;
-		font-size: 1.06rem;
-		font-weight: 600;
-		letter-spacing: 0.01em;
-	}
-
-	.front-page-brand__name small {
-		color: #9c927f;
-		font: 700 0.57rem/1.2 ui-monospace, "SFMono-Regular", Consolas, monospace;
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
+	.front-page-nav :global(.site-icon) {
+		font-size: 0.9rem;
 	}
 
 	.front-page-nav {
+		flex-wrap: wrap;
 		gap: clamp(0.2rem, 1vw, 0.8rem);
 	}
 
 	.front-page-nav a {
 		position: relative;
 		min-height: 44px;
+		gap: 0.35rem;
 		padding-inline: 0.8rem;
 		color: #d8cdb8;
 		font: 700 0.72rem/1 ui-monospace, "SFMono-Regular", Consolas, monospace;
@@ -169,12 +147,22 @@ const isExternalLink = (link: FrontPageLink) =>
 		transition: transform 160ms ease;
 	}
 
+	.front-page-nav .front-page-nav__icon-link {
+		width: 44px;
+		justify-content: center;
+		padding: 0;
+	}
+
+	.front-page-nav__icon-link :global(.site-icon) {
+		font-size: 1.2rem;
+	}
+
 	.front-page-nav a:hover::after,
-	.front-page-nav a:focus-visible::after {
+	.front-page-nav a:focus-visible::after,
+	.front-page-nav a[aria-current="page"]::after {
 		transform: scaleX(1);
 	}
 
-	.front-page-brand:focus-visible,
 	.front-page-nav a:focus-visible {
 		outline: 2px solid #f47f16;
 		outline-offset: 4px;
@@ -185,9 +173,6 @@ const isExternalLink = (link: FrontPageLink) =>
 			gap: 1rem;
 		}
 
-		.front-page-brand__name small {
-			display: none;
-		}
 	}
 
 	@media (max-width: 680px) {
@@ -197,7 +182,7 @@ const isExternalLink = (link: FrontPageLink) =>
 			padding-top: 0.35rem;
 		}
 
-		.front-page-brand {
+		.front-page-header :global(.front-page-header__brand) {
 			width: 100%;
 			justify-content: center;
 		}
@@ -205,6 +190,11 @@ const isExternalLink = (link: FrontPageLink) =>
 		.front-page-nav {
 			width: 100%;
 			justify-content: center;
+		}
+
+		.front-page-nav a {
+			padding-inline: 0.55rem;
+			font-size: 0.67rem;
 		}
 	}
 

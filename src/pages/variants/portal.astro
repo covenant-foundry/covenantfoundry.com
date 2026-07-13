@@ -1,6 +1,17 @@
 ---
 import FrontPage from "../../components/front-page/FrontPage.astro";
 import VariantLayout from "../../layouts/VariantLayout.astro";
+import {
+	createProjectDossiers,
+	getPublishedDevlogs,
+	getPublishedProjects,
+} from "../../lib/content";
+
+const [projectEntries, devlogEntries] = await Promise.all([
+	getPublishedProjects(),
+	getPublishedDevlogs(),
+]);
+const projects = createProjectDossiers(projectEntries, devlogEntries);
 ---
 
 <VariantLayout
@@ -8,5 +19,5 @@ import VariantLayout from "../../layouts/VariantLayout.astro";
 	description="An immersive Covenant Foundry homepage centered on faithful stewardship, useful software, and a community of Christian builders."
 	active="portal"
 >
-	<FrontPage />
+	<FrontPage projects={projects} />
 </VariantLayout>

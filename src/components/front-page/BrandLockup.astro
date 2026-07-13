@@ -1,0 +1,74 @@
+---
+import BrandLogo from "../BrandLogo.astro";
+
+interface Props {
+	class?: string;
+	href?: string;
+	name?: string;
+	tagline?: string;
+	ariaLabel?: string;
+}
+
+const {
+	class: className = "",
+	href = "/",
+	name = "Covenant Foundry",
+	tagline = "Software studio & builder community",
+	ariaLabel = `${name} home`,
+} = Astro.props;
+---
+
+<a class:list={["brand-lockup", className]} href={href} aria-label={ariaLabel}>
+	<span class="brand-lockup__mark" aria-hidden="true"><BrandLogo alt="" /></span>
+	<span class="brand-lockup__name">
+		<strong>{name}</strong>
+		<small>{tagline}</small>
+	</span>
+</a>
+
+<style>
+	.brand-lockup {
+		display: flex;
+		min-height: 54px;
+		align-items: center;
+		gap: 0.75rem;
+		color: #f2ecdc;
+	}
+
+	.brand-lockup__mark {
+		display: block;
+		width: 2.4rem;
+		flex: 0 0 auto;
+		filter: drop-shadow(0 0 14px rgba(244, 127, 22, 0.22));
+	}
+
+	.brand-lockup__mark :global(img) {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	.brand-lockup__name {
+		display: grid;
+		gap: 0.05rem;
+	}
+
+	.brand-lockup__name strong {
+		font-family: "Iowan Old Style", Baskerville, Georgia, serif;
+		font-size: 1.06rem;
+		font-weight: 600;
+		letter-spacing: 0.01em;
+	}
+
+	.brand-lockup__name small {
+		color: #9c927f;
+		font: 700 0.62rem/1.2 ui-monospace, "SFMono-Regular", Consolas, monospace;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.brand-lockup:focus-visible {
+		outline: 2px solid #f47f16;
+		outline-offset: 4px;
+	}
+</style>

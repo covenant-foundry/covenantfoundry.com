@@ -7,12 +7,14 @@ import ConvictionSection from "./ConvictionSection.astro";
 import FrontPageFooter from "./FrontPageFooter.astro";
 import FrontPageHeader from "./FrontPageHeader.astro";
 import ProjectsList from "./ProjectsList.astro";
+import type { ProjectDossier } from "../../lib/content";
 
 interface Props {
 	discordHref?: string;
+	projects: ProjectDossier[];
 }
 
-const { discordHref = "https://discord.gg/JcWQNBXH42" } = Astro.props;
+const { discordHref = "https://discord.gg/JcWQNBXH42", projects } = Astro.props;
 ---
 
 <div class="front-page">
@@ -48,12 +50,12 @@ const { discordHref = "https://discord.gg/JcWQNBXH42" } = Astro.props;
 			</div>
 		</CathedralFrame>
 
-		<ProjectsList />
+		<ProjectsList projects={projects} />
 		<CommunityCard ctaHref={discordHref} />
 		<ConvictionSection />
 	</main>
 
-	<FrontPageFooter brandHref="#top" />
+	<FrontPageFooter />
 </div>
 
 <style>
@@ -88,6 +90,11 @@ const { discordHref = "https://discord.gg/JcWQNBXH42" } = Astro.props;
 		border-top: 0;
 	}
 
+	:global(.front-page__hero .cathedral-frame__content) {
+		container-type: size;
+		padding-block: clamp(0.75rem, 1.5vh, 2rem);
+	}
+
 	.front-page__hero-copy {
 		display: grid;
 		width: min(46rem, 100%);
@@ -98,7 +105,7 @@ const { discordHref = "https://discord.gg/JcWQNBXH42" } = Astro.props;
 		margin: 0.8rem 0 0;
 		color: #f2ecdc;
 		font-family: "Iowan Old Style", Baskerville, Georgia, serif;
-		font-size: clamp(3.2rem, 5.8vw, 6.3rem);
+		font-size: clamp(3.2rem, min(10cqw, 21cqh), 5rem);
 		font-weight: 500;
 		line-height: 0.84;
 		letter-spacing: -0.045em;

@@ -1,0 +1,111 @@
+---
+import { getEntry, render } from "astro:content";
+import SiteIcon from "../../../../components/SiteIcon.astro";
+import StudioLayout from "../../../../layouts/StudioLayout.astro";
+import {
+	devlogHref,
+	devlogSlug,
+	formatDate,
+	getProjectDevlogs,
+	getPublishedDevlogs,
+	projectHref,
+	toDateTime,
+	type DevlogEntry,
+} from "../../../../lib/content";
+
+export async function getStaticPaths() {
+	const entries = await getPublishedDevlogs();
+
+	return entries.map((entry) => ({
+		params: {
+			project: entry.data.project.id,
+			entry: devlogSlug(entry),
+		},
+		props: { entry },
+	}));
+}
+
+interface Props {
+	entry: DevlogEntry;
+}
+
+const { entry } = Astro.props;
+const project = await getEntry(entry.data.project);
+
+if (!project) {
+	throw new Error(`Project not found for dev log entry: ${entry.id}`);
+}
+
+const projectEntries = getProjectDevlogs(project, await getPublishedDevlogs());
+const currentIndex = projectEntries.findIndex((candidate) => candidate.id === entry.id);
+const newerEntry = currentIndex > 0 ? projectEntries[currentIndex - 1] : undefined;
+const olderEntry = currentIndex >= 0 ? projectEntries[currentIndex + 1] : undefined;
+const { Content } = await render(entry);
+---
+
+<StudioLayout
+	title={`${entry.data.title} — ${project.data.name} dev log | Covenant Foundry`}
+	description={entry.data.summary}
+>
+	<article>
+		<header class="devlog-masthead studio-wrap">
+			<a class="studio-back-link" href={`${projectHref(project)}#devlog`}>
+				<span aria-hidden="true">←</span> {project.data.name} dev log
+			</a>
+
+			<div class="devlog-masthead__meta">
+				<a href={projectHref(project)}>{project.data.name}</a>
+				<span aria-hidden="true">/</span>
+				<time datetime={toDateTime(entry.data.publishedAt)}>
+					{formatDate(entry.data.publishedAt)}
+				</time>
+				{
+					entry.data.updatedAt && (
+						<>
+							<span aria-hidden="true">/</span>
+							<span>
+								Updated <time datetime={toDateTime(entry.data.updatedAt)}>{formatDate(entry.data.updatedAt)}</time>
+							</span>
+						</>
+					)
+				}
+				{
+					entry.data.sourceUrl && (
+						<>
+							<span aria-hidden="true">/</span>
+							<a href={entry.data.sourceUrl} target="_blank" rel="noopener noreferrer">
+								Source <SiteIcon name="external-link" />
+							</a>
+						</>
+					)
+				}
+			</div>
+			<h1>{entry.data.title}</h1>
+		</header>
+
+		<section class="studio-section studio-section--article studio-wrap" aria-label={`${entry.data.title} article`}>
+			<div class="studio-prose studio-prose--article">
+				<Content />
+			</div>
+
+			{
+				(newerEntry || olderEntry) && (
+					<nav class="entry-pagination" aria-label="More dev log entries">
+						{olderEntry && (
+							<a class="entry-pagination__older" href={devlogHref(olderEntry)}>
+								<span>← Older entry</span>
+								<strong>{olderEntry.data.title}</strong>
+							</a>
+						)}
+						{newerEntry && (
+							<a class="entry-pagination__newer" href={devlogHref(newerEntry)}>
+								<span>Newer entry →</span>
+								<strong>{newerEntry.data.title}</strong>
+							</a>
+						)}
+					</nav>
+				)
+			}
+		</section>
+	</article>
+</StudioLayout>

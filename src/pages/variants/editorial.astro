@@ -1,6 +1,7 @@
 ---
 import BrandLogo from "../../components/BrandLogo.astro";
 import IconSigil from "../../components/IconSigil.astro";
+import SiteIcon from "../../components/SiteIcon.astro";
 import VariantLayout from "../../layouts/VariantLayout.astro";
 ---
 
@@ -31,7 +32,7 @@ import VariantLayout from "../../layouts/VariantLayout.astro";
 				target="_blank"
 				rel="noopener"
 			>
-				Join the builders <span aria-hidden="true">↗</span>
+				Join the builders <SiteIcon name="external-link" />
 			</a>
 		</header>
 
@@ -57,7 +58,7 @@ import VariantLayout from "../../layouts/VariantLayout.astro";
 							target="_blank"
 							rel="noopener"
 						>
-							Join the Discord <span aria-hidden="true">↗</span>
+							Join the Discord <SiteIcon name="external-link" />
 						</a>
 					</div>
 				</div>
@@ -129,7 +130,7 @@ import VariantLayout from "../../layouts/VariantLayout.astro";
 							target="_blank"
 							rel="noopener"
 						>
-							Meet the community <span aria-hidden="true">↗</span>
+							Meet the community <SiteIcon name="external-link" />
 						</a>
 					</article>
 
@@ -175,7 +176,7 @@ import VariantLayout from "../../layouts/VariantLayout.astro";
 						target="_blank"
 						rel="noopener"
 					>
-						Join the Discord <span aria-hidden="true">↗</span>
+						Join the Discord <SiteIcon name="external-link" />
 					</a>
 				</div>
 
@@ -231,8 +232,8 @@ import VariantLayout from "../../layouts/VariantLayout.astro";
 				<a href="#projects">Work</a>
 				<a href="#community">Community</a>
 				<a href="#about">About</a>
-				<a href="https://github.com/Covenant-Foundry" target="_blank" rel="noopener">GitHub ↗</a>
-				<a href="https://discord.gg/JcWQNBXH42" target="_blank" rel="noopener">Discord ↗</a>
+				<a class="footer__icon-link" href="https://github.com/Covenant-Foundry" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub"><SiteIcon name="github" /></a>
+				<a class="footer__icon-link" href="https://discord.gg/JcWQNBXH42" target="_blank" rel="noopener" aria-label="Discord" title="Discord"><SiteIcon name="discord" /></a>
 			</nav>
 			<p class="footer__note">Build faithfully. Share generously.</p>
 		</footer>
@@ -264,6 +265,11 @@ import VariantLayout from "../../layouts/VariantLayout.astro";
 		color: var(--paper);
 		font-family: var(--sans);
 		line-height: 1.55;
+	}
+
+	.editorial :global(.site-icon--external-link) {
+		width: 0.9rem;
+		height: 0.9rem;
 	}
 
 	.editorial::before {
@@ -1045,6 +1051,16 @@ import VariantLayout from "../../layouts/VariantLayout.astro";
 		justify-content: center;
 		flex-wrap: wrap;
 		gap: 0.2rem;
+	}
+
+	.footer nav .footer__icon-link {
+		width: 44px;
+		justify-content: center;
+		padding: 0;
+	}
+
+	.footer__icon-link :global(.site-icon) {
+		font-size: 1.15rem;
 	}
 
 	.footer__note {

@@ -1,6 +1,17 @@
 ---
 import FrontPage from "../components/front-page/FrontPage.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import {
+	createProjectDossiers,
+	getPublishedDevlogs,
+	getPublishedProjects,
+} from "../lib/content";
+
+const [projectEntries, devlogEntries] = await Promise.all([
+	getPublishedProjects(),
+	getPublishedDevlogs(),
+]);
+const projects = createProjectDossiers(projectEntries, devlogEntries);
 ---
 
 <BaseLayout
@@ -8,5 +19,5 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 	description="Covenant Foundry creates practical software and brings Christian builders together around faithful stewardship, excellent craft, and work that serves."
 	chrome={false}
 >
-	<FrontPage />
+	<FrontPage projects={projects} />
 </BaseLayout>

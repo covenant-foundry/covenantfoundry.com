@@ -1,0 +1,25 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import FrontPageFooter from "../components/front-page/FrontPageFooter.astro";
+import FrontPageHeader from "../components/front-page/FrontPageHeader.astro";
+import "../styles/studio.css";
+
+interface Props {
+	title: string;
+	description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<BaseLayout title={title} description={description} chrome={false}>
+	<div class="studio-page">
+		<FrontPageHeader brandHref="/" />
+
+		<main id="main-content">
+			<slot />
+		</main>
+
+		<FrontPageFooter />
+	</div>
+</BaseLayout>

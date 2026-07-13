@@ -1,0 +1,154 @@
+---
+import { render } from "astro:content";
+import SiteIcon from "../../components/SiteIcon.astro";
+import StudioLayout from "../../layouts/StudioLayout.astro";
+import {
+	devlogHref,
+	formatDate,
+	getProjectDevlogs,
+	getPublishedDevlogs,
+	getPublishedProjects,
+	projectDomain,
+	toDateTime,
+	type ProjectEntry,
+} from "../../lib/content";
+
+export async function getStaticPaths() {
+	const projects = await getPublishedProjects();
+
+	return projects.map((project) => ({
+		params: { project: project.id },
+		props: { project },
+	}));
+}
+
+interface Props {
+	project: ProjectEntry;
+}
+
+const { project } = Astro.props;
+const devlogs = getProjectDevlogs(project, await getPublishedDevlogs());
+const { Content } = await render(project);
+const normalizeHref = (href?: string) => href?.replace(/\/$/, "");
+const sourceHref = project.data.repository &&
+	normalizeHref(project.data.repository) !== normalizeHref(project.data.support.href)
+	? project.data.repository
+	: undefined;
+---
+
+<StudioLayout
+	title={`${project.data.name} | Covenant Foundry`}
+	description={project.data.description}
+>
+	<div class="project-page studio-wrap">
+		<a class="studio-back-link" href="/projects"><span aria-hidden="true">←</span> All projects</a>
+
+		<article
+			class="project-record"
+			data-tone={project.data.status.tone}
+			aria-labelledby="project-title"
+		>
+			<header class="project-record__identity">
+				<h1 id="project-title">{project.data.name}</h1>
+				<div class="project-record__links">
+					{
+						project.data.website ? (
+							<a
+								class="project-record__domain"
+								href={project.data.website}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								{projectDomain(project)}
+								<SiteIcon name="external-link" />
+							</a>
+						) : (
+							<p class="project-record__domain">{projectDomain(project)}</p>
+						)
+					}
+					{
+						sourceHref && (
+							<a
+								class="project-record__source"
+								href={sourceHref}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								View source <SiteIcon name="external-link" />
+							</a>
+						)
+					}
+				</div>
+			</header>
+
+			<div class="project-record__description studio-prose">
+				<Content />
+			</div>
+
+			<dl class="project-record__facts">
+				<div class="project-record__fact project-record__fact--status">
+					<dt>Go-live status</dt>
+					<dd>
+						<strong>{project.data.status.label}</strong>
+						<span>{project.data.status.detail}</span>
+					</dd>
+				</div>
+				<div class="project-record__fact">
+					<dt>Support mechanism</dt>
+					<dd>
+						<strong>
+							{
+								project.data.support.href ? (
+									<a
+										href={project.data.support.href}
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										{project.data.support.label} <SiteIcon name="external-link" />
+									</a>
+								) : (
+									project.data.support.label
+								)
+							}
+						</strong>
+						<span>{project.data.support.detail}</span>
+					</dd>
+				</div>
+			</dl>
+
+			<section id="devlog" class="project-record__devlog" aria-labelledby="devlog-title">
+				<div class="project-record__section-heading">
+					<h2 id="devlog-title">Dev log</h2>
+					<span>
+						{String(devlogs.length).padStart(2, "0")} {devlogs.length === 1 ? "entry" : "entries"}
+					</span>
+				</div>
+
+				{
+					devlogs.length > 0 ? (
+						<ol class="devlog-list">
+							{devlogs.map((entry) => (
+								<li>
+									<a class="devlog-row" href={devlogHref(entry)}>
+										<span class="devlog-row__meta">
+											<time datetime={toDateTime(entry.data.publishedAt)}>
+												{formatDate(entry.data.publishedAt)}
+											</time>
+										</span>
+										<span class="devlog-row__body">
+											<strong>{entry.data.title}</strong>
+											<span>{entry.data.summary}</span>
+										</span>
+										<i aria-hidden="true">→</i>
+									</a>
+								</li>
+							))}
+						</ol>
+					) : (
+						<p class="studio-empty">The first dev log entry has not been published yet.</p>
+					)
+				}
+			</section>
+		</article>
+	</div>
+</StudioLayout>
