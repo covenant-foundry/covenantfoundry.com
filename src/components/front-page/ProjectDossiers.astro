@@ -1,5 +1,7 @@
 ---
 import SiteIcon from "../SiteIcon.astro";
+import DevlogList from "../DevlogList.astro";
+import ProjectFacts from "../ProjectFacts.astro";
 import type { ProjectDossier } from "../../lib/content";
 
 interface Props {
@@ -31,61 +33,25 @@ const { projects } = Astro.props;
 						Project details <span aria-hidden="true">→</span>
 					</a>
 
-					<dl class="dossier__facts">
-						<div class="fact fact--status">
-							<dt>Go-live status</dt>
-							<dd>
-								<strong>{project.status}</strong>
-							</dd>
-						</div>
-						<div class="fact">
-							<dt>Support mechanism</dt>
-							<dd>
-								<strong>
-									{project.supportHref ? (
-									<a href={project.supportHref} target="_blank" rel="noopener noreferrer">
-										{project.support} <SiteIcon name="external-link" />
-										</a>
-									) : (
-										project.support
-									)}
-								</strong>
-							</dd>
-						</div>
-					</dl>
+					<ProjectFacts
+						status={project.status}
+						statusTone={project.statusTone}
+						support={project.support}
+						supportHref={project.supportHref}
+						variant="card"
+					/>
 
-					<section class="build-log" aria-labelledby={`${project.slug}-build-log`}>
-						<div class="build-log__heading">
-							<h4 id={`${project.slug}-build-log`}>
-								<a href={`${project.detailHref}#devlog`}>Dev log</a>
-							</h4>
-							<span>
-								{String(project.devlogCount).padStart(2, "0")} {project.devlogCount === 1 ? "entry" : "entries"}
-							</span>
-						</div>
-						{project.log.length > 0 ? (
-							<ol>
-								{project.log.map((entry) => (
-									<li>
-										<a
-											class="log-entry"
-											href={entry.href}
-											aria-label={`${entry.title} — ${project.name} dev log entry`}
-										>
-											<time class="log-entry__date" datetime={entry.datetime}>{entry.date}</time>
-											<span class="log-entry__body">
-												<strong>{entry.title}</strong>
-												<span>{entry.summary}</span>
-											</span>
-											<i aria-hidden="true">→</i>
-										</a>
-									</li>
-								))}
-							</ol>
-						) : (
-							<p class="build-log__empty">The first dev log entry is still being prepared.</p>
-						)}
-					</section>
+					<DevlogList
+						entries={project.log.map((entry) => ({
+							...entry,
+							ariaLabel: `${entry.title} — ${project.name} dev log entry`,
+						}))}
+						entryCount={project.devlogCount}
+						headingId={`${project.slug}-build-log`}
+						titleHref={`${project.detailHref}#devlog`}
+						emptyMessage="The first dev log entry is still being prepared."
+						variant="card"
+					/>
 				</article>
 			))
 		}
@@ -180,7 +146,6 @@ const { projects } = Astro.props;
 		);
 	}
 
-	.build-log__heading,
 	.dossier__details {
 		font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
 		font-weight: 750;
@@ -251,168 +216,10 @@ const { projects } = Astro.props;
 		color: var(--dossier-ivory);
 	}
 
-	.dossier__facts {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		margin: 0;
-		border-top: 1px solid rgba(181, 138, 69, 0.32);
-		border-bottom: 1px solid rgba(181, 138, 69, 0.32);
-	}
-
-	.fact {
-		min-width: 0;
-		padding: 0.95rem 0.85rem 1rem 0;
-	}
-
-	.fact + .fact {
-		padding-right: 0;
-		padding-left: 0.85rem;
-		border-left: 1px solid rgba(181, 138, 69, 0.22);
-	}
-
-	.fact dt {
-		color: #9c927f;
-		font: 750 0.62rem/1.2 ui-monospace, "SFMono-Regular", Consolas, monospace;
-		letter-spacing: 0.07em;
-		text-transform: uppercase;
-	}
-
-	.fact dd {
-		margin: 0.6rem 0 0;
-	}
-
-	.fact strong {
-		color: var(--dossier-parchment);
-		font-size: 0.79rem;
-		line-height: 1.25;
-	}
-
-	.fact strong a {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.3rem;
-		color: inherit;
-	}
-
-	.fact strong a :global(.site-icon) {
-		font-size: 0.9rem;
-	}
-
-	.fact strong a:hover {
-		color: var(--dossier-ivory);
-	}
-
-	.fact--status strong {
-		color: var(--status-color);
-	}
-
 	.dossier__identity a:focus-visible,
-	.dossier__details:focus-visible,
-	.log-entry:focus-visible,
-	.build-log__heading a:focus-visible {
+	.dossier__details:focus-visible {
 		outline: 2px solid var(--dossier-orange);
 		outline-offset: 3px;
-	}
-
-	.build-log {
-		align-self: stretch;
-		border-top: 1px solid rgba(181, 138, 69, 0.52);
-	}
-
-	.build-log__heading {
-		display: flex;
-		min-height: 3.2rem;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-	}
-
-	.build-log__heading h4 {
-		margin: 0;
-		color: var(--dossier-ivory);
-		font: inherit;
-		font-size: 0.67rem;
-	}
-
-	.build-log__heading a {
-		color: inherit;
-		transition: color 160ms ease;
-	}
-
-	.build-log__heading a:hover {
-		color: var(--dossier-orange);
-	}
-
-	.build-log__heading span {
-		color: #9c927f;
-		font-size: 0.62rem;
-	}
-
-	.build-log ol {
-		margin: 0;
-		padding: 0;
-		border-bottom: 1px solid rgba(181, 138, 69, 0.24);
-		list-style: none;
-	}
-
-	.build-log__empty {
-		margin: 0;
-		padding: 1.5rem 0;
-		border-top: 1px solid rgba(181, 138, 69, 0.2);
-		border-bottom: 1px solid rgba(181, 138, 69, 0.24);
-		color: #9c927f;
-		font-size: 0.7rem;
-		line-height: 1.55;
-	}
-
-	.build-log li {
-		border-top: 1px solid rgba(181, 138, 69, 0.2);
-	}
-
-	.log-entry {
-		position: relative;
-		display: grid;
-		grid-template-columns: 5.25rem minmax(0, 1fr) auto;
-		gap: 0.75rem;
-		min-height: 6.75rem;
-		align-items: start;
-		padding: 1rem 0.2rem;
-		transition: background 160ms ease;
-	}
-
-	.log-entry:hover {
-		background: rgba(181, 138, 69, 0.055);
-	}
-
-	.log-entry__date {
-		padding-top: 0.12rem;
-		color: var(--dossier-orange);
-		font: 700 0.62rem/1.45 ui-monospace, "SFMono-Regular", Consolas, monospace;
-		letter-spacing: 0.045em;
-		text-transform: uppercase;
-	}
-
-	.log-entry__body {
-		display: grid;
-		gap: 0.35rem;
-	}
-
-	.log-entry__body strong {
-		color: var(--dossier-parchment);
-		font-size: 0.74rem;
-		line-height: 1.35;
-	}
-
-	.log-entry__body > span {
-		color: #81786b;
-		font-size: 0.67rem;
-		line-height: 1.5;
-	}
-
-	.log-entry > i {
-		color: var(--dossier-orange);
-		font: 400 0.72rem/1 ui-monospace, "SFMono-Regular", Consolas, monospace;
-		font-style: normal;
 	}
 
 	@media (max-width: 1100px) {
@@ -429,10 +236,6 @@ const { projects } = Astro.props;
 			padding-bottom: 1.5rem;
 		}
 
-		.log-entry {
-			grid-template-columns: minmax(7rem, 0.22fr) minmax(0, 1fr) auto;
-			min-height: 5.75rem;
-		}
 	}
 
 	@media (max-width: 520px) {
@@ -452,41 +255,11 @@ const { projects } = Astro.props;
 			font-size: 0.86rem;
 		}
 
-		.dossier__facts {
-			grid-template-columns: 1fr;
-		}
-
-		.fact,
-		.fact + .fact {
-			padding: 0.9rem 0;
-		}
-
-		.fact + .fact {
-			border-top: 1px solid rgba(181, 138, 69, 0.22);
-			border-left: 0;
-		}
-
-		.log-entry {
-			grid-template-columns: 1fr auto;
-			gap: 0.5rem;
-			min-height: 0;
-			padding-block: 1rem;
-		}
-
-		.log-entry__date {
-			grid-column: 1 / -1;
-		}
-
-		.log-entry__body {
-			grid-column: 1;
-		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
 		.dossier__identity a,
-		.dossier__details,
-		.build-log__heading a,
-		.log-entry {
+		.dossier__details {
 			transition: none;
 		}
 	}

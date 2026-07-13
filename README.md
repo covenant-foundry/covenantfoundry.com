@@ -1,13 +1,13 @@
 # Covenant Foundry
 
-Static Astro prototype for the Covenant Foundry remodel.
+Covenant Foundry's public website, project directory, and project-specific dev logs.
 
 ## Stack
 
 - Astro 7
 - Static output
-- CSS and inline SVG for visual patterns
-- Real Covenant Foundry logo from the previous main branch
+- Markdown content collections with YAML front matter
+- CSS and inline SVG for the visual system
 
 ## Commands
 
@@ -16,12 +16,14 @@ npx astro dev --background
 npx astro dev status
 npx astro dev logs
 npx astro dev stop
+npm run check
 npm run build
+npm run validate
 npm run preview
 ```
 
-The current site uses a dark industrial Art Deco direction with framed plates, circuit ornament,
-project cards, dev-log panels, and project-detail pages.
+`npm run validate` runs the Astro content and type checks followed by a production build. Run it
+before releasing changes.
 
 ## Content
 
@@ -84,3 +86,6 @@ Generated routes:
 - `/projects`
 - `/projects/<project-id>`
 - `/projects/<project-id>/devlog/<entry-id>`
+
+The production build also generates `sitemap-index.xml`. `public/robots.txt` advertises the sitemap
+at `https://covenantfoundry.com/sitemap-index.xml`.

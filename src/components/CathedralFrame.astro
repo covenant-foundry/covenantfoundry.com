@@ -37,10 +37,84 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 	</div>
 </section>
 
+<style>
+	:global(.cathedral-frame) {
+		position: relative;
+		width: 100%;
+		height: var(--cathedral-height, clamp(27rem, 42vw, 40rem));
+		min-height: 0;
+		aspect-ratio: var(--cathedral-aspect-ratio, 3 / 1);
+		overflow: hidden;
+		border: 0;
+		border-top: 1px solid var(--color-brass);
+		background: transparent;
+		box-shadow: none;
+	}
+
+	:global(.cathedral-frame__art) {
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+	}
+
+	:global(.cathedral-frame__content),
+	:global(.cathedral-frame__logo) {
+		position: absolute;
+		z-index: 1;
+	}
+
+	:global(.cathedral-frame__content) {
+		top: var(--cathedral-content-top, 32%);
+		left: var(--cathedral-content-left, 25%);
+		display: grid;
+		width: var(--cathedral-content-width, 50%);
+		height: var(--cathedral-content-height, 46%);
+		place-items: center;
+		overflow: clip;
+		padding: clamp(1rem, 2.4vw, 2.4rem);
+		text-align: center;
+	}
+
+	:global(.cathedral-frame__logo) {
+		top: var(--cathedral-logo-top, 18%);
+		left: var(--cathedral-logo-left, 47%);
+		display: grid;
+		width: var(--cathedral-logo-width, 6%);
+		height: var(--cathedral-logo-height, 18%);
+		place-items: center;
+		pointer-events: none;
+	}
+
+	:global(.cathedral-frame__logo:empty) {
+		display: none;
+	}
+
+	:global(.cathedral-frame__logo img) {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		filter: drop-shadow(0 12px 26px rgba(0, 0, 0, 0.62));
+	}
+
+	@media (max-width: 680px) {
+		:global(.cathedral-frame__art .corner-guides) {
+			display: none;
+		}
+	}
+</style>
+
 <script>
+	type Random = () => number;
+	type Point = { x: number; y: number };
+	type PointTuple = [number, number];
+	type CathedralGridNode = { column: number; row: number };
+	type FrameRect = Point & { width: number; height: number };
+
 	const PHI = (1 + Math.sqrt(5)) / 2;
 	const SVG_NS = "http://www.w3.org/2000/svg";
-	const SQRT2 = Math.SQRT2;
 	const LINE_WIDTH = {
 		normal: 1.5,
 		thick: 3,
@@ -48,7 +122,7 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 		compactBreakpoint: 780,
 	};
 
-	function hashString(input) {
+	function hashString(input: string) {
 		let hash = 2166136261;
 		for (let index = 0; index < input.length; index += 1) {
 			hash ^= input.charCodeAt(index);
@@ -57,7 +131,7 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 		return hash >>> 0;
 	}
 
-	function createRandom(seed) {
+	function createRandom(seed: string): Random {
 		let value = hashString(seed);
 		return () => {
 			value += 0x6d2b79f5;
@@ -68,42 +142,48 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 		};
 	}
 
-	function range(random, min, max) {
+	function range(random: Random, min: number, max: number) {
 		return min + (max - min) * random();
 	}
 
-	function pick(random, values) {
+	function pick<T>(random: Random, values: T[]): T {
 		return values[Math.floor(random() * values.length)];
 	}
 
-	function snap(value, grid) {
+	function snap(value: number, grid: number) {
 		return Math.round(value / grid) * grid;
 	}
 
-	function clamp(value, min, max) {
+	function clamp(value: number, min: number, max: number) {
 		return Math.min(max, Math.max(min, value));
 	}
 
-	function pathFromPoints(points) {
+	function pathFromPoints(points: PointTuple[]) {
 		return points
 			.map(([x, y], index) => `${index === 0 ? "M" : "L"} ${x} ${y}`)
 			.join(" ");
 	}
 
-	function mirrored(content, width) {
+	function mirrored(content: string, width: number) {
 		return `${content}<g transform="translate(${width} 0) scale(-1 1)">${content}</g>`;
 	}
 
-	function strokePath(d, className = "brass", width = LINE_WIDTH.normal, extra = "") {
+	function strokePath(d: string, className = "brass", width = LINE_WIDTH.normal, extra = "") {
 		return `<path class="${className}" d="${d}" stroke-width="${width}" ${extra}/>`;
 	}
 
-	function terminal(x, y, radius = 3, className = "brass", strokeWidth = LINE_WIDTH.normal) {
+	function terminal(
+		x: number,
+		y: number,
+		radius = 3,
+		className = "brass",
+		strokeWidth = LINE_WIDTH.normal,
+	) {
 		const fillRadius = Math.max(1.2, radius / 2.3);
 		return `<circle class="${className}" cx="${x}" cy="${y}" r="${radius}" stroke-width="${strokeWidth}"/><circle class="${className}-fill" cx="${x}" cy="${y}" r="${fillRadius}"/>`;
 	}
 
-	function buildCathedral(width, height, seed) {
+	function buildCathedral(width: number, height: number, seed: string) {
 		const lineWidth = {
 			normal: LINE_WIDTH.normal,
 			thick: width <= LINE_WIDTH.compactBreakpoint ? LINE_WIDTH.compactThick : LINE_WIDTH.thick,
@@ -170,19 +250,19 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 		const foregroundRailEndX = frameInset + corner + railEndOffset;
 		const foregroundWallLineEndX = frameInset;
 		const recessedInsetStep = recessedArcRun / 6;
-		const framePaths = [];
-		const centerPaths = [];
-		const centerAccent = [];
-			const recessedLayer = [];
-			const sideForestLeft = [];
-			const sideForestCapsLeft = [];
-			const sideForestMaskCutsLeft = [];
-			const stepLeft = [];
-			const traceLeft = [];
-			const tracePadsLeft = [];
-			const tracePadMaskCutsLeft = [];
-			const cornerGuides = [];
-			const centerMarks = [];
+		const framePaths: string[] = [];
+		const centerPaths: string[] = [];
+		const centerAccent: string[] = [];
+		const recessedLayer: string[] = [];
+		const sideForestLeft: string[] = [];
+		const sideForestCapsLeft: string[] = [];
+		const sideForestMaskCutsLeft: string[] = [];
+		const stepLeft: string[] = [];
+		const traceLeft: string[] = [];
+		const tracePadsLeft: string[] = [];
+		const tracePadMaskCutsLeft: string[] = [];
+		const cornerGuides: string[] = [];
+		const centerMarks: string[] = [];
 		const foregroundStrokeWidth = LINE_WIDTH.normal;
 		const foregroundTopMaskStrokeWidth = foregroundStrokeWidth + Math.max(2, grid * 0.25);
 		const foregroundTopMaskPath = `M ${circleArcLeftX} ${contentY} A ${circleRadius} ${circleRadius} 0 0 1 ${circleArcRightX} ${contentY} Z`;
@@ -200,16 +280,16 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 		);
 		const cornerDecorStrokeWidth = lineWidth.thick;
 		const sideForestCapRadius = cornerGuideSpacing / (PHI * 2);
-		const shouldShowLeftCornerDot = (column, row) =>
+		const shouldShowLeftCornerDot = (column: number, row: number) =>
 			!(column === 0 && row === 0)
 			&& !(column === 2 && row === 3)
 			&& !(column === 3 && row === 2)
 			&& column + row <= 5;
 
-		function cornerCircuitGuide(transform) {
-			const visibleNodes = [];
-			const nodeX = (column) => column * cornerGuideSpacing;
-			const nodeY = (row) => row * cornerGuideSpacing;
+		function cornerCircuitGuide(transform: string) {
+			const visibleNodes: CathedralGridNode[] = [];
+			const nodeX = (column: number) => column * cornerGuideSpacing;
+			const nodeY = (row: number) => row * cornerGuideSpacing;
 			const cornerCurveRadius = Math.min(cornerGuideSpacing * 0.24, cornerGuideSpacing / 3);
 			for (let row = 0; row < cornerGuideDotCount; row += 1) {
 				for (let column = 0; column < cornerGuideDotCount; column += 1) {
@@ -217,12 +297,13 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 					visibleNodes.push({ column, row });
 				}
 			}
-			const nodeKey = ({ column, row }) => `${column},${row}`;
+			const nodeKey = ({ column, row }: CathedralGridNode) => `${column},${row}`;
 			const nodeSet = new Set(visibleNodes.map((node) => `${node.column},${node.row}`));
-			const edgeMap = new Map();
-			const cornerGraph = new Map(visibleNodes.map((node) => [nodeKey(node), []]));
+			const edgeMap = new Map<string, [CathedralGridNode, CathedralGridNode]>();
+			const cornerGraph = new Map<string, CathedralGridNode[]>();
+			for (const node of visibleNodes) cornerGraph.set(nodeKey(node), []);
 
-			function addCornerEdge(from, to) {
+			function addCornerEdge(from: CathedralGridNode, to: CathedralGridNode) {
 				const edgeKey = [nodeKey(from), nodeKey(to)].sort().join("|");
 				edgeMap.set(edgeKey, [from, to]);
 				cornerGraph.get(nodeKey(from))?.push(to);
@@ -238,22 +319,30 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 				}
 			}
 
-			function cornerEdgeKey(from, to) {
+			function cornerEdgeKey(from: CathedralGridNode, to: CathedralGridNode) {
 				return [nodeKey(from), nodeKey(to)].sort().join("|");
 			}
 
-			function remainingNeighbors(node, remainingEdges) {
+			function remainingNeighbors(node: CathedralGridNode, remainingEdges: Set<string>) {
 				return (cornerGraph.get(nodeKey(node)) ?? []).filter((neighbor) =>
 					remainingEdges.has(cornerEdgeKey(node, neighbor)),
 				);
 			}
 
-			function sameDirection(previous, current, next) {
+			function sameDirection(
+				previous: CathedralGridNode,
+				current: CathedralGridNode,
+				next: CathedralGridNode,
+			) {
 				return (current.column - previous.column) === (next.column - current.column)
 					&& (current.row - previous.row) === (next.row - current.row);
 			}
 
-			function pickNextCornerNode(previous, current, remainingEdges) {
+			function pickNextCornerNode(
+				previous: CathedralGridNode,
+				current: CathedralGridNode,
+				remainingEdges: Set<string>,
+			) {
 				const candidates = remainingNeighbors(current, remainingEdges);
 				if (candidates.length === 0) return undefined;
 				return candidates.sort((left, right) => {
@@ -265,7 +354,7 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 				})[0];
 			}
 
-			function nextCornerStart(remainingEdges) {
+			function nextCornerStart(remainingEdges: Set<string>) {
 				for (const node of visibleNodes) {
 					const degree = remainingNeighbors(node, remainingEdges).length;
 					if (degree === 1 || degree > 2) return node;
@@ -276,7 +365,7 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 
 			function consumeCornerRoutes() {
 				const remainingEdges = new Set(edgeMap.keys());
-				const routes = [];
+				const routes: CathedralGridNode[][] = [];
 
 				while (remainingEdges.size > 0) {
 					const start = nextCornerStart(remainingEdges);
@@ -301,7 +390,7 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 				return routes;
 			}
 
-			function roundedCornerPath(route) {
+			function roundedCornerPath(route: CathedralGridNode[]) {
 				const points = route.map(({ column, row }) => ({ x: nodeX(column), y: nodeY(row) }));
 				if (points.length < 2) return "";
 				let d = `M ${points[0].x} ${points[0].y}`;
@@ -362,7 +451,7 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 			);
 		}
 
-		function addRecessedShape(inset, className) {
+		function addRecessedShape(inset: number, className: string) {
 			const lineY = recessedLineY + inset;
 			const lineStartX = recessedLineStartX + inset;
 			const lineEndX = recessedLineEndX - inset;
@@ -441,7 +530,7 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 		}
 
 		const shoulderStep = contentWidth / 48;
-		const foregroundShoulderPoints = [
+		const foregroundShoulderPoints: PointTuple[] = [
 			[contentX, foregroundWallBottomY],
 			[contentX, contentY + shoulderStep * 4],
 			[contentX + shoulderStep, contentY + shoulderStep * 4],
@@ -475,7 +564,7 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 		const tracePadClearance = tracePadRadius + lineWidth.thick / 2 + 1;
 		const traceGridSpacing = cornerGuideSpacing;
 		const traceStartRows = [1, 0, -1];
-		const tracePatterns = [
+		const tracePatterns: CathedralGridNode[][] = [
 			[
 				{ column: -1, row: -1 },
 				{ column: -1, row: -1 },
@@ -492,29 +581,32 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 			],
 		];
 
-		function leftArcLimitAtY(y, clearance = 0) {
+		function leftArcLimitAtY(y: number, clearance = 0) {
 			const arcHalfAtY = Math.sqrt(Math.max(0, circleRadius ** 2 - (y - circleCenterY) ** 2));
 			return centerX - arcHalfAtY + clearance;
 		}
 
-		function leftLogoLimitAtY(y, clearance = 0) {
+		function leftLogoLimitAtY(y: number, clearance = 0) {
 			const logoHalfAtY = Math.sqrt(Math.max(0, logoGuideRadius ** 2 - (y - logoGuideCenterY) ** 2));
 			return centerX - logoHalfAtY - clearance;
 		}
 
-		function traceGridPoint(column, row) {
+		function traceGridPoint(column: number, row: number): Point {
 			return {
 				x: centerX + column * traceGridSpacing,
 				y: logoGuideCenterY - row * traceGridSpacing,
 			};
 		}
 
-		function firstOutsideLogoColumn(row) {
+		function firstOutsideLogoColumn(row: number) {
 			const pointY = traceGridPoint(0, row).y;
 			return Math.floor((leftLogoLimitAtY(pointY, traceLineClearance) - centerX) / traceGridSpacing);
 		}
 
-		function buildTracePoints(startRow, pattern) {
+		function buildTracePoints(
+			startRow: number,
+			pattern: CathedralGridNode[],
+		): CathedralGridNode[] {
 			const outsideColumn = firstOutsideLogoColumn(startRow);
 			const points = [
 				{ column: 0, row: startRow },
@@ -538,7 +630,7 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 			return points;
 		}
 
-		function pathFromGridPoints(points) {
+		function pathFromGridPoints(points: CathedralGridNode[]) {
 			return points
 				.map(({ column, row }, index) => {
 					const point = traceGridPoint(column, row);
@@ -654,14 +746,20 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 		};
 	}
 
-	function applyRectProperties(element, prefix, rect, width, height) {
+	function applyRectProperties(
+		element: HTMLElement,
+		prefix: string,
+		rect: FrameRect,
+		width: number,
+		height: number,
+	) {
 		element.style.setProperty(`--${prefix}-left`, `${(rect.x / width) * 100}%`);
 		element.style.setProperty(`--${prefix}-top`, `${(rect.y / height) * 100}%`);
 		element.style.setProperty(`--${prefix}-width`, `${(rect.width / width) * 100}%`);
 		element.style.setProperty(`--${prefix}-height`, `${(rect.height / height) * 100}%`);
 	}
 
-	function renderCathedralFrame(frame) {
+	function renderCathedralFrame(frame: HTMLElement) {
 		const svg = frame.querySelector(".cathedral-frame__art");
 		if (!(svg instanceof SVGSVGElement)) return;
 		const bounds = frame.getBoundingClientRect();
@@ -690,7 +788,7 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 		frame.dataset.ready = "true";
 	}
 
-	const frames = Array.from(document.querySelectorAll("[data-cathedral-frame]"));
+	const frames = document.querySelectorAll<HTMLElement>("[data-cathedral-frame]");
 	const resizeObserver = new ResizeObserver((entries) => {
 		for (const entry of entries) {
 			const frame = entry.target;
@@ -700,7 +798,6 @@ const style = `--cathedral-height: ${minHeight}; --cathedral-aspect-ratio: ${asp
 	});
 
 	for (const frame of frames) {
-		if (!(frame instanceof HTMLElement)) continue;
 		resizeObserver.observe(frame);
 		renderCathedralFrame(frame);
 	}

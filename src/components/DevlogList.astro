@@ -1,0 +1,288 @@
+---
+interface DevlogListEntry {
+	href: string;
+	date: string;
+	datetime: string;
+	title: string;
+	summary: string;
+	ariaLabel?: string;
+}
+
+interface Props {
+	entries: DevlogListEntry[];
+	entryCount?: number;
+	headingId: string;
+	sectionId?: string;
+	titleHref?: string;
+	emptyMessage: string;
+	variant?: "card" | "detail";
+}
+
+const {
+	entries,
+	entryCount = entries.length,
+	headingId,
+	sectionId,
+	titleHref,
+	emptyMessage,
+	variant = "detail",
+} = Astro.props;
+const HeadingTag = variant === "card" ? "h4" : "h2";
+---
+
+<section
+	id={sectionId}
+	class:list={["project-devlog", `project-devlog--${variant}`]}
+	aria-labelledby={headingId}
+>
+	<div class="project-devlog__heading">
+		<HeadingTag id={headingId}>
+			{titleHref ? <a href={titleHref}>Dev log</a> : "Dev log"}
+		</HeadingTag>
+		<span>{String(entryCount).padStart(2, "0")} {entryCount === 1 ? "entry" : "entries"}</span>
+	</div>
+
+	{
+		entries.length > 0 ? (
+			<ol class="project-devlog__list">
+				{entries.map((entry) => (
+					<li>
+						<a class="project-devlog__entry" href={entry.href} aria-label={entry.ariaLabel}>
+							<time class="project-devlog__meta" datetime={entry.datetime}>{entry.date}</time>
+							<span class="project-devlog__body">
+								<strong>{entry.title}</strong>
+								<span>{entry.summary}</span>
+							</span>
+							<i aria-hidden="true">→</i>
+						</a>
+					</li>
+				))}
+			</ol>
+		) : (
+			<p class="project-devlog__empty">{emptyMessage}</p>
+		)
+	}
+</section>
+
+<style>
+	.project-devlog {
+		border-top: 1px solid rgba(181, 138, 69, 0.52);
+	}
+
+	.project-devlog--card {
+		align-self: stretch;
+	}
+
+	.project-devlog__heading {
+		display: flex;
+		min-height: 4rem;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+		font-weight: 750;
+		letter-spacing: 0.075em;
+		text-transform: uppercase;
+	}
+
+	.project-devlog--card .project-devlog__heading {
+		min-height: 3.2rem;
+	}
+
+	.project-devlog__heading :is(h2, h4) {
+		margin: 0;
+		color: var(--color-ivory);
+		font: inherit;
+		font-size: 0.7rem;
+	}
+
+	.project-devlog--card .project-devlog__heading :is(h2, h4) {
+		font-size: 0.67rem;
+	}
+
+	.project-devlog__heading a {
+		color: inherit;
+		transition: color 160ms ease;
+	}
+
+	.project-devlog__heading a:hover {
+		color: var(--color-orange);
+	}
+
+	.project-devlog__heading > span {
+		color: var(--color-muted);
+		font-size: 0.62rem;
+	}
+
+	.project-devlog__list {
+		margin: 0;
+		padding: 0;
+		border-top: 1px solid rgba(181, 138, 69, 0.2);
+		list-style: none;
+	}
+
+	.project-devlog--card .project-devlog__list {
+		border-top: 0;
+		border-bottom: 1px solid rgba(181, 138, 69, 0.24);
+	}
+
+	.project-devlog__list li {
+		border-bottom: 1px solid rgba(181, 138, 69, 0.24);
+	}
+
+	.project-devlog--card .project-devlog__list li {
+		border-top: 1px solid rgba(181, 138, 69, 0.2);
+		border-bottom: 0;
+	}
+
+	.project-devlog__entry {
+		display: grid;
+		grid-template-columns: minmax(7.5rem, 0.16fr) minmax(0, 1fr) auto;
+		gap: clamp(1rem, 3vw, 2.25rem);
+		min-height: 6rem;
+		align-items: start;
+		padding: 1.15rem 0.2rem;
+		transition: background 160ms ease;
+	}
+
+	.project-devlog--card .project-devlog__entry {
+		grid-template-columns: 5.25rem minmax(0, 1fr) auto;
+		gap: 0.75rem;
+		min-height: 6.75rem;
+		padding: 1rem 0.2rem;
+	}
+
+	.project-devlog__entry:hover {
+		background: rgba(181, 138, 69, 0.055);
+	}
+
+	.project-devlog__entry:focus-visible,
+	.project-devlog__heading a:focus-visible {
+		outline: 2px solid var(--color-orange);
+		outline-offset: 3px;
+	}
+
+	.project-devlog__meta {
+		padding-top: 0.15rem;
+		color: var(--color-orange);
+		font: 750 0.61rem/1.45 ui-monospace, "SFMono-Regular", Consolas, monospace;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+
+	.project-devlog--card .project-devlog__meta {
+		padding-top: 0.12rem;
+		font-size: 0.62rem;
+		font-weight: 700;
+		letter-spacing: 0.045em;
+	}
+
+	.project-devlog__body {
+		display: grid;
+		gap: 0.4rem;
+	}
+
+	.project-devlog--card .project-devlog__body {
+		gap: 0.35rem;
+	}
+
+	.project-devlog__body strong {
+		color: var(--color-parchment);
+		font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+		font-size: clamp(0.9rem, 1.25vw, 1.02rem);
+		font-weight: 700;
+		line-height: 1.35;
+	}
+
+	.project-devlog--card .project-devlog__body strong {
+		font-size: 0.74rem;
+	}
+
+	.project-devlog__body > span {
+		max-width: 68ch;
+		color: #81786b;
+		font-size: 0.78rem;
+		line-height: 1.5;
+	}
+
+	.project-devlog--card .project-devlog__body > span {
+		font-size: 0.67rem;
+	}
+
+	.project-devlog__entry > i {
+		color: var(--color-orange);
+		font: 400 0.78rem/1 ui-monospace, "SFMono-Regular", Consolas, monospace;
+		font-style: normal;
+	}
+
+	.project-devlog--card .project-devlog__entry > i {
+		font-size: 0.72rem;
+	}
+
+	.project-devlog__empty {
+		margin: 0;
+		padding: 2rem 0;
+		border-top: 1px solid rgba(181, 138, 69, 0.36);
+		border-bottom: 1px solid rgba(181, 138, 69, 0.2);
+		color: #918777;
+		font-size: 0.9rem;
+		line-height: 1.6;
+	}
+
+	.project-devlog--card .project-devlog__empty {
+		padding: 1.5rem 0;
+		border-top-color: rgba(181, 138, 69, 0.2);
+		border-bottom-color: rgba(181, 138, 69, 0.24);
+		color: var(--color-muted);
+		font-size: 0.7rem;
+		line-height: 1.55;
+	}
+
+	@media (max-width: 1100px) {
+		.project-devlog--card .project-devlog__entry {
+			grid-template-columns: minmax(7rem, 0.22fr) minmax(0, 1fr) auto;
+			min-height: 5.75rem;
+		}
+	}
+
+	@media (max-width: 680px) {
+		.project-devlog--detail .project-devlog__entry {
+			grid-template-columns: 1fr auto;
+			gap: 0.5rem;
+			min-height: 0;
+			padding-block: 1rem;
+		}
+
+		.project-devlog--detail .project-devlog__meta {
+			grid-column: 1 / -1;
+		}
+
+		.project-devlog--detail .project-devlog__body {
+			grid-column: 1;
+		}
+	}
+
+	@media (max-width: 520px) {
+		.project-devlog--card .project-devlog__entry {
+			grid-template-columns: 1fr auto;
+			gap: 0.5rem;
+			min-height: 0;
+			padding-block: 1rem;
+		}
+
+		.project-devlog--card .project-devlog__meta {
+			grid-column: 1 / -1;
+		}
+
+		.project-devlog--card .project-devlog__body {
+			grid-column: 1;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.project-devlog__heading a,
+		.project-devlog__entry {
+			transition: none;
+		}
+	}
+</style>

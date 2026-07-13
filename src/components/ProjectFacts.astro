@@ -1,0 +1,155 @@
+---
+import SiteIcon from "./SiteIcon.astro";
+import type { ProjectStatusTone } from "../lib/content";
+
+interface Props {
+	status: string;
+	statusTone: ProjectStatusTone;
+	support: string;
+	supportHref?: string;
+	variant?: "card" | "detail";
+}
+
+const {
+	status,
+	statusTone,
+	support,
+	supportHref,
+	variant = "detail",
+} = Astro.props;
+---
+
+<dl class:list={["project-facts", `project-facts--${variant}`]} data-tone={statusTone}>
+	<div class="project-facts__fact project-facts__fact--status">
+		<dt>Go-live status</dt>
+		<dd><strong>{status}</strong></dd>
+	</div>
+	<div class="project-facts__fact">
+		<dt>Support mechanism</dt>
+		<dd>
+			<strong>
+				{
+					supportHref ? (
+						<a href={supportHref} target="_blank" rel="noopener noreferrer">
+							{support} <SiteIcon name="external-link" />
+						</a>
+					) : (
+						support
+					)
+				}
+			</strong>
+		</dd>
+	</div>
+</dl>
+
+<style>
+	.project-facts {
+		--project-status-color: var(--color-orange);
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		margin: 0;
+		border-top: 1px solid rgba(181, 138, 69, 0.32);
+		border-bottom: 1px solid rgba(181, 138, 69, 0.32);
+	}
+
+	.project-facts[data-tone="live"] {
+		--project-status-color: var(--color-teal);
+	}
+
+	.project-facts[data-tone="planned"],
+	.project-facts[data-tone="paused"] {
+		--project-status-color: var(--color-muted);
+	}
+
+	.project-facts__fact {
+		min-width: 0;
+		padding: 1.05rem 1rem 1.1rem 0;
+	}
+
+	.project-facts--card .project-facts__fact {
+		padding: 0.95rem 0.85rem 1rem 0;
+	}
+
+	.project-facts__fact + .project-facts__fact {
+		padding-right: 0;
+		padding-left: 1rem;
+		border-left: 1px solid rgba(181, 138, 69, 0.22);
+	}
+
+	.project-facts--card .project-facts__fact + .project-facts__fact {
+		padding-left: 0.85rem;
+	}
+
+	.project-facts__fact dt {
+		color: var(--color-muted);
+		font: 750 0.62rem/1.2 ui-monospace, "SFMono-Regular", Consolas, monospace;
+		letter-spacing: 0.07em;
+		text-transform: uppercase;
+	}
+
+	.project-facts__fact dd {
+		margin: 0.6rem 0 0;
+	}
+
+	.project-facts__fact strong {
+		color: var(--color-parchment);
+		font-size: 0.82rem;
+		line-height: 1.3;
+	}
+
+	.project-facts--card .project-facts__fact strong {
+		font-size: 0.79rem;
+		line-height: 1.25;
+	}
+
+	.project-facts__fact strong a {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		color: inherit;
+	}
+
+	.project-facts__fact strong a :global(.site-icon) {
+		font-size: 0.9rem;
+	}
+
+	.project-facts__fact strong a:hover {
+		color: var(--color-ivory);
+	}
+
+	.project-facts__fact--status strong {
+		color: var(--project-status-color);
+	}
+
+	@media (max-width: 680px) {
+		.project-facts--detail {
+			grid-template-columns: 1fr;
+		}
+
+		.project-facts--detail .project-facts__fact,
+		.project-facts--detail .project-facts__fact + .project-facts__fact {
+			padding: 0.95rem 0;
+		}
+
+		.project-facts--detail .project-facts__fact + .project-facts__fact {
+			border-top: 1px solid rgba(181, 138, 69, 0.22);
+			border-left: 0;
+		}
+	}
+
+	@media (max-width: 520px) {
+		.project-facts--card {
+			grid-template-columns: 1fr;
+		}
+
+		.project-facts--card .project-facts__fact,
+		.project-facts--card .project-facts__fact + .project-facts__fact {
+			padding: 0.9rem 0;
+		}
+
+		.project-facts--card .project-facts__fact + .project-facts__fact {
+			border-top: 1px solid rgba(181, 138, 69, 0.22);
+			border-left: 0;
+		}
+	}
+</style>

@@ -46,6 +46,9 @@ const { Content } = await render(entry);
 <StudioLayout
 	title={`${entry.data.title} — ${project.data.name} dev log | Covenant Foundry`}
 	description={entry.data.summary}
+	type="article"
+	publishedAt={entry.data.publishedAt}
+	updatedAt={entry.data.updatedAt}
 >
 	<article>
 		<header class="devlog-masthead studio-wrap">

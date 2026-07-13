@@ -9,15 +9,15 @@ const projects = defineCollection({
 	schema: z.object({
 		name: z.string(),
 		description: z.string(),
-		website: z.string().url().optional(),
-		repository: z.string().url().optional(),
+		website: z.url().optional(),
+		repository: z.url().optional(),
 		status: z.object({
 			label: z.string(),
 			tone: statusTone,
 		}),
 		support: z.object({
 			label: z.string(),
-			href: z.string().url().optional(),
+			href: z.url().optional(),
 		}),
 		sortOrder: z.number().int().nonnegative().default(0),
 		featured: z.boolean().default(true),
@@ -33,7 +33,7 @@ const devlogs = defineCollection({
 		project: reference("projects"),
 		publishedAt: z.coerce.date(),
 		updatedAt: z.coerce.date().optional(),
-		sourceUrl: z.string().url().optional(),
+		sourceUrl: z.url().optional(),
 		draft: z.boolean().default(false),
 	}),
 });

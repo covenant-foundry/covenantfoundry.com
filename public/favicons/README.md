@@ -1,12 +1,9 @@
-# Favicon
+# Favicons
 
-This directory has the icons used for android devices. In some cases, we cannot
-reliably detect light/dark mode preference. Hence these icons should not have a
-transparent background. These icons are referenced in the `site.webmanifest`
-file.
+This directory contains the PNG icons referenced by `src/layouts/BaseLayout.astro`
+and `public/site.webmanifest`.
 
-The icons used by modern browsers and Apple devices are in `app/assets/favicons`
-as they can be imported with a fingerprint to bust the browser cache.
+The Android icons use an opaque background because light and dark mode cannot be
+detected reliably when a device displays them.
 
-Note, there's also a `favicon.ico` in the root of `/public` which some older
-browsers will request automatically. This is a fallback for those browsers.
+`public/favicon.ico` remains as a fallback for browsers that request it automatically.

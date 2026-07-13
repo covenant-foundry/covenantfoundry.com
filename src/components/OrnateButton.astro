@@ -1,7 +1,6 @@
 ---
 interface Props {
-	href?: string;
-	type?: "button" | "submit" | "reset";
+	href: string;
 	target?: "_blank" | "_self" | "_parent" | "_top";
 	rel?: string;
 	class?: string;
@@ -10,7 +9,6 @@ interface Props {
 
 const {
 	href,
-	type = "button",
 	target,
 	rel,
 	class: className = "",
@@ -20,15 +18,13 @@ const {
 const safeRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined);
 ---
 
-{
-	href ? (
-		<a
-			class:list={["ornate-button", className]}
-			href={href}
-			target={target}
-			rel={safeRel}
-			aria-label={ariaLabel}
-		>
+<a
+	class:list={["ornate-button", className]}
+	href={href}
+	target={target}
+	rel={safeRel}
+	aria-label={ariaLabel}
+>
 			<svg class="ornate-button__art" viewBox="0 0 496 72" preserveAspectRatio="none" aria-hidden="true">
 				<g class="ornate-button__traces" data-ornate-circuit-group fill="none" stroke="var(--color-brass)" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
 					<path class="ornate-button__trace" data-ornate-circuit-trace="top" d="M 112 24 H 100 L 76 48 L 64 36 L 52 24 H 44" />
@@ -52,37 +48,8 @@ const safeRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined)
 				<path class="ornate-button__spiral" data-ornate-spiral-left d="M 122 58 L 144 36 L 125.67 17.67 L 111 32.33 L 122 43.33 L 114.67 50.67 L 118.33 54.33" />
 				<path class="ornate-button__spiral" data-ornate-spiral-right d="M 374 58 L 352 36 L 370.33 17.67 L 385 32.33 L 374 43.33 L 381.33 50.67 L 377.67 54.33" />
 			</svg>
-			<span class="ornate-button__label"><slot /></span>
-		</a>
-	) : (
-		<button class:list={["ornate-button", className]} type={type} aria-label={ariaLabel}>
-			<svg class="ornate-button__art" viewBox="0 0 496 72" preserveAspectRatio="none" aria-hidden="true">
-				<g class="ornate-button__traces" data-ornate-circuit-group fill="none" stroke="var(--color-brass)" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
-					<path class="ornate-button__trace" data-ornate-circuit-trace="top" d="M 112 24 H 100 L 76 48 L 64 36 L 52 24 H 44" />
-					<path class="ornate-button__trace" data-ornate-circuit-trace="middle" d="M 112 36 H 88 L 76 24 H 64 L 52 36 L 40 48 H 32 L 20 36 H 14" />
-					<path class="ornate-button__trace" data-ornate-circuit-trace="bottom" d="M 112 48 H 100 L 76 24 L 64 36 L 52 48 H 44" />
-					<circle class="ornate-button__pad" data-ornate-circuit-pad="top" cx="44" cy="24" r="4.2" fill="var(--color-black)" />
-					<circle class="ornate-button__pad" data-ornate-circuit-pad="middle" cx="14" cy="36" r="4.2" fill="var(--color-black)" />
-					<circle class="ornate-button__pad" data-ornate-circuit-pad="bottom" cx="44" cy="48" r="4.2" fill="var(--color-black)" />
-				</g>
-				<g class="ornate-button__traces" data-ornate-circuit-group transform="translate(496 0) scale(-1 1)" fill="none" stroke="var(--color-brass)" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter">
-					<path class="ornate-button__trace" data-ornate-circuit-trace="top" d="M 112 24 H 100 L 76 48 L 64 36 L 52 24 H 44" />
-					<path class="ornate-button__trace" data-ornate-circuit-trace="middle" d="M 112 36 H 88 L 76 24 H 64 L 52 36 L 40 48 H 32 L 20 36 H 14" />
-					<path class="ornate-button__trace" data-ornate-circuit-trace="bottom" d="M 112 48 H 100 L 76 24 L 64 36 L 52 48 H 44" />
-					<circle class="ornate-button__pad" data-ornate-circuit-pad="top" cx="44" cy="24" r="4.2" fill="var(--color-black)" />
-					<circle class="ornate-button__pad" data-ornate-circuit-pad="middle" cx="14" cy="36" r="4.2" fill="var(--color-black)" />
-					<circle class="ornate-button__pad" data-ornate-circuit-pad="bottom" cx="44" cy="48" r="4.2" fill="var(--color-black)" />
-				</g>
-				<path class="ornate-button__trace-origin" data-ornate-trace-origin-left d="M 120 14 L 98 36 L 120 58" />
-				<path class="ornate-button__trace-origin" data-ornate-trace-origin-right d="M 376 14 L 398 36 L 376 58" />
-				<path class="ornate-button__plate" data-ornate-plate d="M 248 14 H 122 L 100 36 L 122 58 H 374 L 396 36 L 374 14 H 248 Z" />
-				<path class="ornate-button__spiral" data-ornate-spiral-left d="M 122 58 L 144 36 L 125.67 17.67 L 111 32.33 L 122 43.33 L 114.67 50.67 L 118.33 54.33" />
-				<path class="ornate-button__spiral" data-ornate-spiral-right d="M 374 58 L 352 36 L 370.33 17.67 L 385 32.33 L 374 43.33 L 381.33 50.67 L 377.67 54.33" />
-			</svg>
-			<span class="ornate-button__label"><slot /></span>
-		</button>
-	)
-}
+	<span class="ornate-button__label"><slot /></span>
+</a>
 
 <style>
 	.ornate-button {
@@ -193,8 +160,15 @@ const safeRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined)
 
 <script>
 	const SVG_HEIGHT = 72;
+	type Point = { x: number; y: number };
+	type TraceName = "top" | "middle" | "bottom";
+	type TraceOrigin = [Point, Point, Point];
+	interface CircuitLayout {
+		traces: Record<TraceName, Point[]>;
+		pads: Record<TraceName, Point & { radius: number }>;
+	}
 
-	function pointPath(points, close = false) {
+	function pointPath(points: Point[], close = false) {
 		const commands = points.map(({ x, y }, index) =>
 			`${index === 0 ? "M" : "L"} ${roundPathValue(x)} ${roundPathValue(y)}`,
 		);
@@ -202,15 +176,15 @@ const safeRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined)
 		return commands.join(" ");
 	}
 
-	function roundPathValue(value) {
-		return Number(value.toFixed(3));
+	function roundPathValue(value: number) {
+		return String(Number(value.toFixed(3)));
 	}
 
-	function getSpiralGap(height) {
+	function getSpiralGap(height: number) {
 		return height / 24;
 	}
 
-	function buildSpiralPoints(start, height) {
+	function buildSpiralPoints(start: Point, height: number) {
 		const gap = getSpiralGap(height);
 		const directions = [
 			{ x: 1, y: -1 },
@@ -237,17 +211,17 @@ const safeRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined)
 		return points;
 	}
 
-	function getXAtY(start, end, y) {
+	function getXAtY(start: Point, end: Point, y: number) {
 		const progress = (y - start.y) / (end.y - start.y);
 		return start.x + (end.x - start.x) * progress;
 	}
 
-	function getNextCircuitSwap(columnIndex) {
-		const swapPattern = [0, 1, null, 1, 0, null];
+	function getNextCircuitSwap(columnIndex: number) {
+		const swapPattern: Array<0 | 1 | null> = [0, 1, null, 1, 0, null];
 		return swapPattern[(columnIndex - 1) % swapPattern.length];
 	}
 
-	function buildCircuitLayout(traceOriginPoints, height) {
+	function buildCircuitLayout(traceOriginPoints: TraceOrigin, height: number): CircuitLayout {
 		const [originTop, origin, originBottom] = traceOriginPoints;
 		const grid = height / 4;
 		const rowY = [
@@ -268,7 +242,7 @@ const safeRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined)
 			{ length: terminalColumn + 1 },
 			(_, column) => x0 - grid * column,
 		);
-		const traces = ["top", "middle", "bottom"];
+		const traces: TraceName[] = ["top", "middle", "bottom"];
 		const rowsByTrace = new Map(traces.map((trace, row) => [trace, row]));
 		const tracePoints = Object.fromEntries(traces.map((trace, row) => [
 			trace,
@@ -276,7 +250,7 @@ const safeRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined)
 				{ x: startX[row], y: rowY[row] },
 				{ x: columns[0], y: rowY[row] },
 			],
-		]));
+		])) as Record<TraceName, Point[]>;
 
 		for (let column = 1; column <= topBottomTerminalColumn; column += 1) {
 			const swapStartRow = getNextCircuitSwap(column);
@@ -294,7 +268,7 @@ const safeRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined)
 			for (const trace of traces) {
 				tracePoints[trace].push({
 					x: columns[column],
-					y: rowY[rowsByTrace.get(trace)],
+					y: rowY[rowsByTrace.get(trace) ?? 0],
 				});
 			}
 		}
@@ -317,11 +291,10 @@ const safeRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined)
 				middle: { x: columns[terminalColumn], y: rowY[1], radius: padRadius },
 				bottom: { x: columns[topBottomTerminalColumn], y: rowY[2], radius: padRadius },
 			},
-			columnCount: terminalColumn + 1,
 		};
 	}
 
-	function renderCircuitGroup(group, layout) {
+	function renderCircuitGroup(group: Element, layout: CircuitLayout) {
 		for (const [name, points] of Object.entries(layout.traces)) {
 			const trace = group.querySelector(`[data-ornate-circuit-trace="${name}"]`);
 			if (trace instanceof SVGPathElement) {
@@ -339,11 +312,11 @@ const safeRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined)
 		}
 	}
 
-	function mirrorPoints(points, svgWidth) {
+	function mirrorPoints(points: Point[], svgWidth: number) {
 		return points.map(({ x, y }) => ({ x: svgWidth - x, y }));
 	}
 
-	function renderOrnateButton(button) {
+	function renderOrnateButton(button: HTMLElement) {
 		const label = button.querySelector(".ornate-button__label");
 		const art = button.querySelector(".ornate-button__art");
 		const plate = button.querySelector("[data-ornate-plate]");
@@ -401,7 +374,7 @@ const safeRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined)
 		rightSpiral.setAttribute("d", pointPath(mirrorPoints(leftSpiralPoints, svgWidth)));
 
 		const traceOriginOffset = gap * 4;
-		const leftTraceOriginPoints = [
+		const leftTraceOriginPoints: TraceOrigin = [
 			{ x: leftTopX - traceOriginOffset, y: topY },
 			{ x: leftPointX - traceOriginOffset, y: centerY },
 			{ x: leftTopX - traceOriginOffset, y: bottomY },
@@ -422,7 +395,8 @@ const safeRel = rel ?? (target === "_blank" ? "noopener noreferrer" : undefined)
 	const ornateResizeObserver = new ResizeObserver((entries) => {
 		for (const entry of entries) {
 			if (entry.target instanceof HTMLElement) {
-				window.requestAnimationFrame(() => renderOrnateButton(entry.target));
+				const button = entry.target;
+				window.requestAnimationFrame(() => renderOrnateButton(button));
 			}
 		}
 	});

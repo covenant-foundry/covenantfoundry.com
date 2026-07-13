@@ -1,5 +1,7 @@
 ---
 import { render } from "astro:content";
+import DevlogList from "../../components/DevlogList.astro";
+import ProjectFacts from "../../components/ProjectFacts.astro";
 import SiteIcon from "../../components/SiteIcon.astro";
 import StudioLayout from "../../layouts/StudioLayout.astro";
 import {
@@ -34,6 +36,13 @@ const sourceHref = project.data.repository &&
 	normalizeHref(project.data.repository) !== normalizeHref(project.data.support.href)
 	? project.data.repository
 	: undefined;
+const devlogItems = devlogs.map((entry) => ({
+	href: devlogHref(entry),
+	date: formatDate(entry.data.publishedAt),
+	datetime: toDateTime(entry.data.publishedAt),
+	title: entry.data.title,
+	summary: entry.data.summary,
+}));
 ---
 
 <StudioLayout
@@ -85,68 +94,19 @@ const sourceHref = project.data.repository &&
 				<Content />
 			</div>
 
-			<dl class="project-record__facts">
-				<div class="project-record__fact project-record__fact--status">
-					<dt>Go-live status</dt>
-					<dd>
-						<strong>{project.data.status.label}</strong>
-					</dd>
-				</div>
-				<div class="project-record__fact">
-					<dt>Support mechanism</dt>
-					<dd>
-						<strong>
-							{
-								project.data.support.href ? (
-									<a
-										href={project.data.support.href}
-										target="_blank"
-										rel="noopener noreferrer"
-									>
-										{project.data.support.label} <SiteIcon name="external-link" />
-									</a>
-								) : (
-									project.data.support.label
-								)
-							}
-						</strong>
-					</dd>
-				</div>
-			</dl>
+			<ProjectFacts
+				status={project.data.status.label}
+				statusTone={project.data.status.tone}
+				support={project.data.support.label}
+				supportHref={project.data.support.href}
+			/>
 
-			<section id="devlog" class="project-record__devlog" aria-labelledby="devlog-title">
-				<div class="project-record__section-heading">
-					<h2 id="devlog-title">Dev log</h2>
-					<span>
-						{String(devlogs.length).padStart(2, "0")} {devlogs.length === 1 ? "entry" : "entries"}
-					</span>
-				</div>
-
-				{
-					devlogs.length > 0 ? (
-						<ol class="devlog-list">
-							{devlogs.map((entry) => (
-								<li>
-									<a class="devlog-row" href={devlogHref(entry)}>
-										<span class="devlog-row__meta">
-											<time datetime={toDateTime(entry.data.publishedAt)}>
-												{formatDate(entry.data.publishedAt)}
-											</time>
-										</span>
-										<span class="devlog-row__body">
-											<strong>{entry.data.title}</strong>
-											<span>{entry.data.summary}</span>
-										</span>
-										<i aria-hidden="true">→</i>
-									</a>
-								</li>
-							))}
-						</ol>
-					) : (
-						<p class="studio-empty">The first dev log entry has not been published yet.</p>
-					)
-				}
-			</section>
+			<DevlogList
+				entries={devlogItems}
+				headingId="devlog-title"
+				sectionId="devlog"
+				emptyMessage="The first dev log entry has not been published yet."
+			/>
 		</article>
 	</div>
 </StudioLayout>

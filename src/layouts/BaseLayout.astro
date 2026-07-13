@@ -1,16 +1,21 @@
 ---
+import DocumentMeta from "../components/DocumentMeta.astro";
 import "../styles/global.css";
 
 interface Props {
 	title?: string;
 	description?: string;
-	chrome?: boolean;
+	type?: "website" | "article";
+	publishedAt?: Date;
+	updatedAt?: Date;
 }
 
 const {
 	title = "Covenant Foundry",
-	description = "A dark industrial Art Deco concept for a public software studio and build-in-public community.",
-	chrome = true,
+	description = "Covenant Foundry builds practical software and brings Christian builders together.",
+	type = "website",
+	publishedAt,
+	updatedAt,
 } = Astro.props;
 ---
 
@@ -19,8 +24,14 @@ const {
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="description" content={description} />
 		<meta name="generator" content={Astro.generator} />
+		<DocumentMeta
+			title={title}
+			description={description}
+			type={type}
+			publishedAt={publishedAt}
+			updatedAt={updatedAt}
+		/>
 		<link rel="icon" href="/favicon.ico" sizes="any" />
 		<link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png" />
 		<link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png" />
@@ -29,29 +40,6 @@ const {
 		<title>{title}</title>
 	</head>
 	<body>
-		{
-			chrome ? (
-				<div class="site-shell">
-					<header class="site-header" aria-label="Primary">
-						<nav class="site-nav" aria-label="Main navigation">
-							<a href="/projects">Projects</a>
-							<a href="/#community">Community</a>
-							<a href="/#about">About</a>
-						</nav>
-					</header>
-
-					<main>
-						<slot />
-					</main>
-
-					<footer class="site-footer">
-						<span>Covenant Foundry</span>
-						<span>Static Astro prototype</span>
-					</footer>
-				</div>
-			) : (
-				<slot />
-			)
-		}
+		<slot />
 	</body>
 </html>
