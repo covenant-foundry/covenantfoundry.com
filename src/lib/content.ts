@@ -20,10 +20,8 @@ export interface ProjectDossier {
 	detailHref: string;
 	productionHref?: string;
 	status: string;
-	statusDetail: string;
 	statusTone: ProjectStatusTone;
 	support: string;
-	supportDetail: string;
 	supportHref?: string;
 	devlogCount: number;
 	log: DevlogPreview[];
@@ -128,10 +126,8 @@ export function createProjectDossier(
 		detailHref: projectHref(project),
 		productionHref: project.data.website,
 		status: project.data.status.label,
-		statusDetail: project.data.status.detail,
 		statusTone: project.data.status.tone,
 		support: project.data.support.label,
-		supportDetail: project.data.support.detail,
 		supportHref: project.data.support.href,
 		devlogCount: projectDevlogs.length,
 		log: projectDevlogs.slice(0, logLimit).map((entry) => ({

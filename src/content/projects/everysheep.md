@@ -1,21 +1,21 @@
 ---
 name: EverySheep
-description: Pastoral care tools that help church teams know every sheep, record useful notes, and see who needs a personal follow-up.
+description: Pastoral care tools that help churches stay in touch with their members' needs.
 website: https://everysheep.com/
 status:
-  label: Pilot / waitlist
-  detail: In use with early churches
-  tone: pilot
+  label: Live
+  tone: live
 support:
   label: Voluntary subscription
-  detail: Churches can use it freely when money is pressing
-sortOrder: 2
+sortOrder: 1
 featured: true
 draft: false
 ---
 
-Church care information often gets scattered across staff memory, chat threads, spreadsheets, and general-purpose church software. EverySheep gives teams a focused place to keep that context together.
+As churches grow, the bustle of the ninety-nine makes it easy to miss the quiet absence of the one. EverySheep equips your church's pastoral team to care personally for every member of the congregation.
 
-The product is shaped around the work of deacons, pastors, and care teams: recording useful notes, coordinating follow-up, and keeping people from disappearing between meetings.
+Sync with your church management system, assign groups to your team, and jot down quick notes when you've connected with congregants. The ones you miss will rise to the top of your list.
 
-Development happens alongside early church teams so the workflow can stay practical across different ministries and team structures. Each iteration is evaluated against the daily work of caring for people well.
+EverySheep is designed to work standalone or by syncing contact information one-way from a church management system (ChMS). It adds a focused interface and interaction notes, helping you track who hasn't been contacted recently.
+
+It also gives some basic tools for creating template email and text messages that can be sent personally (not via an impersonal mailing list or SMS notification service).

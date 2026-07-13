@@ -3,9 +3,6 @@ title: Cross-chapter reference copying
 summary: Selections that cross chapter boundaries now produce clean, useful Bible references.
 project: armorer
 publishedAt: 2026-05-27
-tags:
-  - Reading
-  - References
 sourceUrl: https://github.com/glitchassassin/armorer/commit/3791548b3dfcb5f65ccecdc09540fe00a52a47b2
 draft: false
 ---

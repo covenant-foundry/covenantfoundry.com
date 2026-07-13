@@ -40,11 +40,9 @@ website: https://example.com/
 repository: https://github.com/example/project
 status:
   label: Pilot
-  detail: In use with an early group
   tone: pilot
 support:
   label: Open source
-  detail: Source and issue tracker on GitHub
 sortOrder: 3
 featured: true
 draft: false
@@ -69,9 +67,6 @@ title: Entry title
 summary: A short summary used in dev-log lists and page metadata.
 project: project-id
 publishedAt: 2026-07-12
-tags:
-  - Product
-  - Integrations
 sourceUrl: https://github.com/example/project/commit/abc123
 draft: false
 ---

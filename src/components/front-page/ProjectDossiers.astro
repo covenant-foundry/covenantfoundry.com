@@ -36,7 +36,6 @@ const { projects } = Astro.props;
 							<dt>Go-live status</dt>
 							<dd>
 								<strong>{project.status}</strong>
-								<span>{project.statusDetail}</span>
 							</dd>
 						</div>
 						<div class="fact">
@@ -51,7 +50,6 @@ const { projects } = Astro.props;
 										project.support
 									)}
 								</strong>
-								<span>{project.supportDetail}</span>
 							</dd>
 						</div>
 					</dl>
@@ -280,8 +278,6 @@ const { projects } = Astro.props;
 	}
 
 	.fact dd {
-		display: grid;
-		gap: 0.28rem;
 		margin: 0.6rem 0 0;
 	}
 
@@ -308,12 +304,6 @@ const { projects } = Astro.props;
 
 	.fact--status strong {
 		color: var(--status-color);
-	}
-
-	.fact dd span {
-		color: #867d6e;
-		font-size: 0.68rem;
-		line-height: 1.45;
 	}
 
 	.dossier__identity a:focus-visible,

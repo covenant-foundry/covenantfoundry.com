@@ -13,12 +13,10 @@ const projects = defineCollection({
 		repository: z.string().url().optional(),
 		status: z.object({
 			label: z.string(),
-			detail: z.string(),
 			tone: statusTone,
 		}),
 		support: z.object({
 			label: z.string(),
-			detail: z.string(),
 			href: z.string().url().optional(),
 		}),
 		sortOrder: z.number().int().nonnegative().default(0),
@@ -35,7 +33,6 @@ const devlogs = defineCollection({
 		project: reference("projects"),
 		publishedAt: z.coerce.date(),
 		updatedAt: z.coerce.date().optional(),
-		tags: z.array(z.string()).default([]),
 		sourceUrl: z.string().url().optional(),
 		draft: z.boolean().default(false),
 	}),
