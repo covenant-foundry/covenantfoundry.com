@@ -1,0 +1,41 @@
+---
+import StudioLayout from "../layouts/StudioLayout.astro";
+---
+
+<StudioLayout
+	title="Page not found | Covenant Foundry"
+	description="The requested page could not be found on Covenant Foundry."
+>
+	<header class="not-found studio-hero studio-wrap">
+		<p class="not-found__code">404</p>
+		<h1>Page not found</h1>
+		<p class="studio-lede">
+			The page you requested does not exist or may have moved.
+		</p>
+		<a class="studio-back-link" href="/">
+			<span aria-hidden="true">←</span> Return home
+		</a>
+	</header>
+</StudioLayout>
+
+<style>
+	.not-found {
+		display: flex;
+		min-height: clamp(28rem, calc(100svh - 9rem), 52rem);
+		flex-direction: column;
+		justify-content: center;
+		border-bottom: 0;
+	}
+
+	.not-found__code {
+		margin-bottom: 0.8rem;
+		color: var(--color-orange);
+		font: 750 0.72rem/1 ui-monospace, "SFMono-Regular", Consolas, monospace;
+		letter-spacing: 0.12em;
+	}
+
+	.not-found .studio-back-link {
+		align-self: flex-start;
+		margin: 1.5rem 0 0;
+	}
+</style>
